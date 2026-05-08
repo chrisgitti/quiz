@@ -1,6 +1,9 @@
 ﻿# Quiz
 
-Eigenstaendige statische Richtig/Falsch-Quiz-App fuer mehrere Themenkataloge.
+Eigenstaendige statische Quiz-App mit zwei Modi:
+
+- **Duo**: Richtig/Falsch-Fragen aus `td_[thema].htm`
+- **Quatro**: Multiple-Choice-Fragen mit vier Antworten aus `tq_[thema].htm`
 
 ## Lokal starten
 
@@ -15,9 +18,7 @@ Danach im Browser oeffnen:
 http://localhost:4174/
 ```
 
-## Themen
-
-Themen liegen als `t_[thema].htm` im Projektordner. Jede Themendatei enthaelt ein JSON-Array im Container `question_data`:
+## Duo-Themen
 
 ```html
 <div id="question_data">
@@ -31,23 +32,38 @@ Themen liegen als `t_[thema].htm` im Projektordner. Jede Themendatei enthaelt ei
 </div>
 ```
 
+## Quatro-Themen
+
+```html
+<div id="question_data">
+[
+  {
+    "frage": "Welche Antwort ist richtig?",
+    "antworten": ["A", "B", "C", "D"],
+    "richtig": 0,
+    "grad": "leicht"
+  }
+]
+</div>
+```
+
 Erlaubte Schwierigkeitsgrade sind `leicht`, `mittel` und `schwer`.
 
 ## Pflege
 
 ```powershell
 python -B scripts\quiz_tool.py all check
-python -B scripts\quiz_tool.py bayern check count:100
+python -B scripts\quiz_tool.py duo all check
+python -B scripts\quiz_tool.py quatro all check
+python -B scripts\quiz_tool.py duo bayern check count:100
 ```
 
 Neue Themen werden ueber den lokalen `/quiz`-Skill erstellt oder geprueft.
 
 ## Website veroeffentlichen
 
-Die Website `weberding.de` bleibt ein Deployment-Ziel. Nach Aenderungen im eigenstaendigen Projekt kann die aktuelle Quiz-Version nach `C:\Daten\Projects\weberding\quiz` kopiert werden:
-
 ```powershell
 .\publish-to-weberding.ps1
 ```
 
-Das Script synchronisiert die App-Dateien und laesst Git-Metadaten sowie lokale Cache-Dateien aus.
+Das Script synchronisiert die aktuelle Quiz-Version nach `C:\Daten\Projects\weberding\quiz`.

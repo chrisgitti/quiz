@@ -304,9 +304,16 @@
             opacity: 0.55;
         }
 
-        .btn_true,
-        .btn_quatro {
+        .btn_true {
             background: linear-gradient(135deg, #16b978, #1fdf82);
+        }
+
+        .btn_quatro {
+            background: var(--panel);
+            border: 2px solid var(--line);
+            color: var(--ink);
+            justify-content: flex-start;
+            padding-inline: 18px;
         }
 
         .btn_false {
@@ -399,6 +406,28 @@
             0% { transform: translateY(0) scale(1); box-shadow: 0 18px 46px rgba(0, 0, 0, 0.28); }
             45% { transform: translateY(-2px) scale(1.025); box-shadow: 0 0 0 4px rgba(31, 223, 130, 0.42), 0 0 30px rgba(31, 223, 130, 0.48); }
             100% { transform: translateY(0) scale(1); box-shadow: 0 0 0 2px rgba(31, 223, 130, 0.22), 0 18px 46px rgba(0, 0, 0, 0.28); }
+        }
+
+        .mode-quatro .answer_button.selected-right {
+            background: var(--green) !important;
+            color: white;
+        }
+
+        .mode-quatro .answer_button.selected-wrong {
+            background: var(--red) !important;
+            color: white;
+        }
+
+        .mode-quatro .answer_button.is-actual-correct {
+            border-color: var(--amber) !important;
+            box-shadow: 0 0 0 4px rgba(255, 209, 102, 0.5) !important;
+            animation: reveal_correct_quatro 640ms ease both !important;
+        }
+
+        @keyframes reveal_correct_quatro {
+            0% { transform: translateY(0) scale(1); border-color: var(--line); box-shadow: 0 18px 46px rgba(0, 0, 0, 0.28); }
+            45% { transform: translateY(-2px) scale(1.025); border-color: var(--amber); box-shadow: 0 0 0 6px rgba(255, 209, 102, 0.6), 0 0 30px rgba(255, 209, 102, 0.48); }
+            100% { transform: translateY(0) scale(1); border-color: var(--amber); box-shadow: 0 0 0 4px rgba(255, 209, 102, 0.5), 0 18px 46px rgba(0, 0, 0, 0.28); }
         }
 
         .control_dock {
@@ -861,6 +890,7 @@
     function konfiguriere_antwort_buttons(frage = null) {
         const grid = document.getElementById('answer_grid');
         grid.classList.toggle('is-quatro', aktueller_modus === 'quatro');
+        grid.classList.toggle('mode-quatro', aktueller_modus === 'quatro');
         alle_antwort_buttons().forEach((btn, i) => {
             btn.classList.remove('btn_true', 'btn_false', 'btn_quatro', 'is-hidden');
             btn.querySelector('.answer_icon').innerText = ['A', 'B', 'C', 'D'][i];

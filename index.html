@@ -1,0 +1,1072 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz - Richtig/Falsch</title>
+    <style>
+        :root {
+            --bg: #07090f;
+            --panel: rgba(255, 255, 255, 0.08);
+            --panel-strong: rgba(255, 255, 255, 0.13);
+            --ink: #f8fbff;
+            --muted: #aab6c8;
+            --line: rgba(255, 255, 255, 0.16);
+            --cyan: #34d6d2;
+            --green: #1fdf82;
+            --red: #ff4268;
+            --amber: #ffd166;
+            --shadow: 0 28px 80px rgba(0, 0, 0, 0.45);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            color: var(--ink);
+            font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background:
+                radial-gradient(circle at 18% 12%, rgba(52, 214, 210, 0.24), transparent 32%),
+                radial-gradient(circle at 82% 18%, rgba(255, 66, 104, 0.22), transparent 30%),
+                radial-gradient(circle at 50% 100%, rgba(255, 209, 102, 0.16), transparent 34%),
+                var(--bg);
+        }
+
+        button,
+        select {
+            font: inherit;
+        }
+
+        .app_shell {
+            width: min(100%, 980px);
+            min-height: 100vh;
+            margin: 0 auto;
+            padding: 18px;
+            display: grid;
+            grid-template-rows: auto auto 1fr auto;
+            gap: 14px;
+            position: relative;
+        }
+
+        .top_bar {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto auto;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .app_title {
+            margin: 0;
+            font-size: clamp(1.25rem, 3vw, 1.75rem);
+            font-weight: 900;
+            line-height: 1;
+        }
+
+        .topic_line {
+            margin-top: 5px;
+            color: var(--muted);
+            font-size: 0.92rem;
+            font-weight: 750;
+        }
+
+        .score_pill {
+            min-width: 112px;
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px 14px;
+            text-align: center;
+            box-shadow: 0 10px 26px rgba(0, 0, 0, 0.22);
+        }
+
+        .score_value {
+            font-size: 1.35rem;
+            font-weight: 950;
+            line-height: 1;
+        }
+
+        .score_label {
+            color: var(--muted);
+            font-size: 0.68rem;
+            font-weight: 850;
+            text-transform: uppercase;
+        }
+
+        .mobile_settings_button {
+            display: none;
+            width: 44px;
+            height: 44px;
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--ink);
+            cursor: pointer;
+            font-size: 1.22rem;
+            line-height: 1;
+            place-items: center;
+        }
+
+        .hero_quiz {
+            min-height: 420px;
+            border: 1px solid rgba(52, 214, 210, 0.38);
+            border-radius: 28px;
+            background:
+                linear-gradient(145deg, rgba(8, 60, 72, 0.96), rgba(18, 26, 60, 0.94) 52%, rgba(54, 17, 52, 0.92));
+            box-shadow: 0 34px 90px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(52, 214, 210, 0.08) inset;
+            backdrop-filter: blur(22px);
+            padding: clamp(22px, 5vw, 46px);
+            display: grid;
+            grid-template-rows: auto 1fr auto;
+            gap: 22px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .hero_quiz::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+                linear-gradient(120deg, rgba(52, 214, 210, 0.18), transparent 40%, rgba(255, 209, 102, 0.1)),
+                radial-gradient(circle at 86% 18%, rgba(255, 66, 104, 0.17), transparent 26%);
+            pointer-events: none;
+        }
+
+        .hero_quiz > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        .progress_row {
+            display: grid;
+            gap: 9px;
+        }
+
+        .progress_meta {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            color: var(--muted);
+            font-size: 0.88rem;
+            font-weight: 800;
+        }
+
+        .progress_track {
+            height: 8px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.12);
+            overflow: hidden;
+        }
+
+        .progress_fill {
+            width: 0%;
+            height: 100%;
+            border-radius: inherit;
+            background: linear-gradient(90deg, var(--cyan), var(--amber));
+            transition: width 260ms ease;
+        }
+
+        .question_area {
+            display: grid;
+            align-content: center;
+            gap: 18px;
+        }
+
+        .stage_label {
+            width: fit-content;
+            border: 1px solid rgba(52, 214, 210, 0.38);
+            border-radius: 999px;
+            background: rgba(52, 214, 210, 0.13);
+            color: #bafffb;
+            padding: 7px 12px;
+            font-size: 0.76rem;
+            font-weight: 950;
+            text-transform: uppercase;
+        }
+
+        .question_text {
+            margin: 0;
+            max-width: 100%;
+            font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-size: clamp(1.62rem, 3.84vw, 2.94rem);
+            font-weight: 520;
+            line-height: 1.24;
+            text-wrap: pretty;
+            letter-spacing: 0;
+            text-shadow: 0 18px 55px rgba(0, 0, 0, 0.38);
+        }
+
+        .question_text.entering {
+            animation: question_in 260ms ease both;
+        }
+
+        @keyframes question_in {
+            from { opacity: 0; transform: translateY(12px) scale(0.99); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .feedback_row {
+            min-height: 48px;
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            color: var(--muted);
+            font-weight: 800;
+        }
+
+        .feedback_mark {
+            width: 30px;
+            height: 30px;
+            border-radius: 999px;
+            background: var(--panel-strong);
+            color: var(--cyan);
+            display: grid;
+            place-items: center;
+            flex: 0 0 auto;
+            font-weight: 950;
+        }
+
+        .feedback_row.is-right {
+            color: #c9ffe6;
+        }
+
+        .feedback_row.is-wrong {
+            color: #ffd1da;
+        }
+
+        .feedback_row.is-right .feedback_mark {
+            background: var(--green);
+            color: #03130b;
+        }
+
+        .feedback_row.is-wrong .feedback_mark {
+            background: var(--red);
+            color: white;
+        }
+
+        .hero_quiz.is-right {
+            border-color: rgba(31, 223, 130, 0.55);
+            box-shadow: 0 28px 80px rgba(31, 223, 130, 0.2);
+        }
+
+        .hero_quiz.is-wrong {
+            border-color: rgba(255, 66, 104, 0.55);
+            box-shadow: 0 28px 80px rgba(255, 66, 104, 0.2);
+        }
+
+        .answer_grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        .play_stack {
+            min-height: 0;
+            display: grid;
+            grid-template-rows: minmax(0, 1fr) auto;
+            gap: 14px;
+        }
+
+        .answer_button {
+            min-height: 108px;
+            border: 0;
+            border-radius: 22px;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            font-size: clamp(1.25rem, 3vw, 1.75rem);
+            font-weight: 950;
+            box-shadow: 0 18px 46px rgba(0, 0, 0, 0.28);
+            transition: transform 150ms ease, filter 150ms ease, opacity 150ms ease;
+        }
+
+        .answer_button:hover:not(:disabled) {
+            transform: translateY(-3px);
+            filter: brightness(1.08);
+        }
+
+        .answer_button:active:not(:disabled) {
+            transform: translateY(1px);
+        }
+
+        .answer_button:disabled {
+            cursor: default;
+            opacity: 0.55;
+        }
+
+        .btn_true {
+            background: linear-gradient(135deg, #16b978, #1fdf82);
+        }
+
+        .btn_false {
+            background: linear-gradient(135deg, #dc3157, #ff4268);
+        }
+
+        .answer_icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            display: grid;
+            place-items: center;
+            line-height: 1;
+        }
+
+        .answer_button.selected-right,
+        .answer_button.selected-wrong {
+            opacity: 1;
+            filter: brightness(1.16);
+            transform: translateY(-2px) scale(1.01);
+        }
+
+        .answer_button.is-muted {
+            opacity: 0.34;
+            filter: grayscale(0.25);
+        }
+
+        .answer_button.is-correct-choice {
+            animation: correct_pulse 520ms ease both;
+        }
+
+        .answer_button.btn_false.is-correct-choice {
+            animation: false_is_correct_pulse 720ms ease both;
+        }
+
+        .answer_button.is-wrong-choice {
+            animation: wrong_shake 520ms ease both;
+        }
+
+        .answer_button.btn_true.is-wrong-choice {
+            animation: true_is_wrong_shake 720ms ease both;
+        }
+
+        .answer_button.is-actual-correct {
+            opacity: 1;
+            animation: reveal_correct 640ms ease both;
+        }
+
+        @keyframes correct_pulse {
+            0% { transform: translateY(0) scale(1); box-shadow: 0 18px 46px rgba(0, 0, 0, 0.28); }
+            42% { transform: translateY(-2px) scale(1.035); box-shadow: 0 0 0 4px rgba(31, 223, 130, 0.34), 0 0 34px rgba(31, 223, 130, 0.58); }
+            100% { transform: translateY(-1px) scale(1.01); box-shadow: 0 0 0 2px rgba(31, 223, 130, 0.26), 0 18px 46px rgba(0, 0, 0, 0.28); }
+        }
+
+        @keyframes false_is_correct_pulse {
+            0% { transform: translateY(0) scale(1); background: linear-gradient(135deg, #dc3157, #ff4268); box-shadow: 0 18px 46px rgba(0, 0, 0, 0.28); }
+            30% { transform: translateY(-3px) scale(1.045); background: linear-gradient(135deg, #18c978, #1fdf82); box-shadow: 0 0 0 5px rgba(31, 223, 130, 0.48), 0 0 42px rgba(31, 223, 130, 0.78); }
+            68% { transform: translateY(-2px) scale(1.02); background: linear-gradient(135deg, #18c978, #1fdf82); box-shadow: 0 0 0 3px rgba(31, 223, 130, 0.38), 0 0 30px rgba(31, 223, 130, 0.58); }
+            100% { transform: translateY(-1px) scale(1.01); background: linear-gradient(135deg, #16b978, #1fdf82); box-shadow: 0 0 0 2px rgba(31, 223, 130, 0.32), 0 18px 46px rgba(0, 0, 0, 0.28); }
+        }
+
+        @keyframes wrong_shake {
+            0%, 100% { transform: translateX(0); box-shadow: 0 18px 46px rgba(0, 0, 0, 0.28); }
+            18% { transform: translateX(-7px); box-shadow: 0 0 0 4px rgba(255, 66, 104, 0.34), 0 0 34px rgba(255, 66, 104, 0.58); }
+            36% { transform: translateX(7px); }
+            54% { transform: translateX(-4px); }
+            72% { transform: translateX(4px); }
+        }
+
+        @keyframes true_is_wrong_shake {
+            0% { transform: translateX(0) scale(1); background: linear-gradient(135deg, #16b978, #1fdf82); box-shadow: 0 18px 46px rgba(0, 0, 0, 0.28); }
+            18% { transform: translateX(-8px) scale(1.025); background: linear-gradient(135deg, #dc3157, #ff4268); box-shadow: 0 0 0 5px rgba(255, 66, 104, 0.48), 0 0 42px rgba(255, 66, 104, 0.78); }
+            36% { transform: translateX(8px) scale(1.025); background: linear-gradient(135deg, #dc3157, #ff4268); }
+            54% { transform: translateX(-5px) scale(1.015); background: linear-gradient(135deg, #dc3157, #ff4268); box-shadow: 0 0 0 3px rgba(255, 66, 104, 0.38), 0 0 30px rgba(255, 66, 104, 0.58); }
+            72% { transform: translateX(5px) scale(1.01); background: linear-gradient(135deg, #dc3157, #ff4268); }
+            100% { transform: translateX(0) scale(1.01); background: linear-gradient(135deg, #dc3157, #ff4268); box-shadow: 0 0 0 2px rgba(255, 66, 104, 0.32), 0 18px 46px rgba(0, 0, 0, 0.28); }
+        }
+
+        @keyframes reveal_correct {
+            0% { transform: translateY(0) scale(1); box-shadow: 0 18px 46px rgba(0, 0, 0, 0.28); }
+            45% { transform: translateY(-2px) scale(1.025); box-shadow: 0 0 0 4px rgba(31, 223, 130, 0.42), 0 0 30px rgba(31, 223, 130, 0.48); }
+            100% { transform: translateY(0) scale(1); box-shadow: 0 0 0 2px rgba(31, 223, 130, 0.22), 0 18px 46px rgba(0, 0, 0, 0.28); }
+        }
+
+        .control_dock {
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.065);
+            backdrop-filter: blur(16px);
+            padding: 9px;
+            display: grid;
+            grid-template-columns: minmax(160px, 1.6fr) repeat(3, minmax(110px, 1fr)) auto;
+            gap: 8px;
+            align-items: end;
+            box-shadow: 0 14px 34px rgba(0, 0, 0, 0.18);
+        }
+
+        .field {
+            min-width: 0;
+            display: grid;
+            gap: 4px;
+        }
+
+        .label {
+            color: var(--muted);
+            font-size: 0.68rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            padding-left: 4px;
+        }
+
+        select {
+            width: 100%;
+            height: 34px;
+            border: 1px solid transparent;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.09);
+            color: var(--ink);
+            padding: 0 8px;
+            outline: none;
+            font-size: 0.82rem;
+            font-weight: 800;
+        }
+
+        select:focus {
+            border-color: var(--cyan);
+            box-shadow: 0 0 0 3px rgba(52, 214, 210, 0.18);
+        }
+
+        option {
+            color: #10151d;
+        }
+
+        .start_button {
+            height: 44px;
+            min-width: 126px;
+            border: 0;
+            border-radius: 14px;
+            background: var(--cyan);
+            color: #041114;
+            cursor: pointer;
+            font-weight: 950;
+            box-shadow: 0 14px 34px rgba(52, 214, 210, 0.22);
+            transition: transform 150ms ease, filter 150ms ease;
+        }
+
+        .start_button:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.08);
+        }
+
+        .start_button:active {
+            transform: translateY(1px);
+        }
+
+        .apply_settings_button {
+            display: none;
+            height: 34px;
+            border: 1px solid rgba(52, 214, 210, 0.38);
+            border-radius: 10px;
+            background: rgba(52, 214, 210, 0.13);
+            color: var(--ink);
+            cursor: pointer;
+            font-weight: 900;
+        }
+
+        @media (max-width: 760px) {
+            .app_shell {
+                padding: 14px;
+                min-height: 100dvh;
+                grid-template-rows: auto minmax(0, 1fr);
+                gap: 10px;
+            }
+
+            .top_bar {
+                grid-template-columns: minmax(0, 1fr) auto auto;
+                gap: 8px;
+            }
+
+            .mobile_settings_button {
+                display: grid;
+            }
+
+            .hero_quiz {
+                min-height: 0;
+                border-radius: 24px;
+                padding: 16px;
+                gap: 12px;
+            }
+
+            .question_text {
+                max-width: 100%;
+            }
+
+            .play_stack {
+                min-height: 0;
+                display: grid;
+                grid-template-rows: minmax(0, 1fr) auto;
+                gap: 10px;
+            }
+
+            .answer_grid {
+                gap: 10px;
+            }
+
+            .answer_button {
+                min-height: 0;
+                height: clamp(54px, 10dvh, 76px);
+                border-radius: 16px;
+                font-size: clamp(1.05rem, 4.5vw, 1.35rem);
+            }
+
+            .answer_icon {
+                width: 32px;
+                height: 32px;
+            }
+
+            .control_dock {
+                grid-template-columns: 1.2fr 0.8fr;
+                position: absolute;
+                z-index: 20;
+                top: 66px;
+                left: 14px;
+                right: 14px;
+                display: none;
+            }
+
+            .control_dock.is-open {
+                display: grid;
+            }
+
+            .apply_settings_button {
+                display: block;
+                grid-column: 1 / -1;
+            }
+        }
+
+        @media (max-width: 520px) {
+            .top_bar {
+                grid-template-columns: minmax(0, 1fr) auto auto;
+            }
+
+            .score_pill {
+                display: none;
+            }
+
+            .hero_quiz {
+                min-height: 0;
+                padding: 14px;
+                gap: 10px;
+            }
+
+            .question_text {
+                font-size: clamp(1.32rem, 6.24vw, 1.98rem);
+            }
+
+            .answer_grid {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+
+            .answer_button {
+                height: clamp(48px, 8.5dvh, 62px);
+                border-radius: 14px;
+            }
+
+            .feedback_row {
+                min-height: 34px;
+                font-size: 0.9rem;
+            }
+
+            .progress_meta {
+                font-size: 0.78rem;
+            }
+
+            .stage_label {
+                padding: 5px 9px;
+                font-size: 0.68rem;
+            }
+
+            .control_dock {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<main class="app_shell">
+    <header class="top_bar">
+        <div>
+            <h1 class="app_title">Quiz</h1>
+            <div class="topic_line" id="anzeige_titel">Thema wird geladen</div>
+        </div>
+        <div class="score_pill" aria-live="polite">
+            <div class="score_value" id="score_wert">0</div>
+            <div class="score_label">Richtig</div>
+        </div>
+        <button id="btn_start" class="start_button" onclick="starte_quiz()">Starten</button>
+        <button class="mobile_settings_button" id="btn_settings_toggle" onclick="toggle_einstellungen()" aria-controls="control_dock" aria-expanded="false" title="Einstellungen">⚙</button>
+    </header>
+
+    <section class="control_dock" id="control_dock">
+        <label class="field">
+            <span class="label">Thema</span>
+            <select id="sel_thema" onchange="auswahl_geaendert()">
+                <option value="">Themen werden geladen...</option>
+            </select>
+        </label>
+        <label class="field">
+            <span class="label">Level</span>
+            <select id="sel_grad" onchange="aktualisiere_vorschau()">
+                <option value="ohne">Gemischt</option>
+                <option value="leicht">Leicht</option>
+                <option value="mittel">Mittel</option>
+                <option value="schwer">Schwer</option>
+            </select>
+        </label>
+        <label class="field">
+            <span class="label">Fragen</span>
+            <select id="sel_anzahl" onchange="aktualisiere_vorschau()">
+                <option value="10">10</option>
+                <option value="20">20</option>
+                <option value="30">30</option>
+                <option value="40">40</option>
+                <option value="50" selected>50</option>
+                <option value="100">100</option>
+            </select>
+        </label>
+        <label class="field">
+            <span class="label">Audio</span>
+            <select id="sel_audio">
+                <option value="beides">Sprache + Ton</option>
+                <option value="sprache">Sprache</option>
+                <option value="ton">Ton</option>
+                <option value="ohne">Aus</option>
+            </select>
+        </label>
+        <button class="apply_settings_button" onclick="uebernehme_einstellungen()">Übernehmen</button>
+    </section>
+
+    <div class="play_stack">
+    <section class="hero_quiz" id="frage_stage">
+        <div class="progress_row" aria-label="Fortschritt">
+            <div class="progress_meta">
+                <span id="info_frage">Frage 0 / 0</span>
+                <span id="info_punkte">Richtig: 0</span>
+            </div>
+            <div class="progress_track">
+                <div class="progress_fill" id="progress_fill"></div>
+            </div>
+        </div>
+
+        <div class="question_area">
+            <div class="stage_label" id="stage_label">Bereit</div>
+            <p class="question_text" id="display_aussage">Bereit?</p>
+        </div>
+
+        <div class="feedback_row" id="display_status">
+            <span class="feedback_mark" id="feedback_mark">i</span>
+            <span id="feedback_text">Bereit zum Start.</span>
+        </div>
+
+    </section>
+
+    <section class="answer_grid" aria-label="Antworten">
+        <button id="btn_user_richtig" class="answer_button btn_true" onclick="pruefe_user_antwort(true)" disabled>
+            <span class="answer_icon">✓</span>
+            <span>Richtig</span>
+        </button>
+        <button id="btn_user_falsch" class="answer_button btn_false" onclick="pruefe_user_antwort(false)" disabled>
+            <span class="answer_icon">×</span>
+            <span>Falsch</span>
+        </button>
+    </section>
+    </div>
+</main>
+
+<script>
+    let pool_alle = [];
+    let pool_aktiv = [];
+    let index_aktuell = 0;
+    let score = 0;
+    let ist_gesperrt = false;
+    let wurde_bereits_gestartet = false;
+    let aktueller_titel = "Quiz";
+
+    const sound_richtig = new Audio('media/freesound_community-correct-6033.mp3');
+    const sound_falsch = new Audio('wrong.mp3');
+    sound_richtig.volume = 1;
+    sound_falsch.volume = 1;
+
+    const fallback_themen = [
+        { datei: 't_auswahlverfahren.htm', titel: 'Auswahlverfahren' },
+        { datei: 't_bayern.htm', titel: 'Bayern' },
+        { datei: 't_deutsch.htm', titel: 'Deutsch' },
+        { datei: 't_geschichte.htm', titel: 'Geschichte' },
+        { datei: 't_pflanzen.htm', titel: 'Pflanzen' },
+        { datei: 't_poolbillardregeln.htm', titel: 'Poolbillardregeln' },
+        { datei: 't_society.htm', titel: 'Society' },
+        { datei: 't_tiere.htm', titel: 'Tiere' }
+    ];
+
+    function ermittle_themen_titel(datei_name) {
+        let name = datei_name.replace(/^.*\//, '').replace(/^t_/i, '').replace(/\.htm$/i, '');
+        name = name.replace(/[-_]+/g, ' ').trim();
+        if (!name) return datei_name;
+        return name.replace(/\b\p{L}/gu, zeichen => zeichen.toUpperCase());
+    }
+
+    function sortiere_themen(themen) {
+        return themen.sort((a, b) => a.titel.localeCompare(b.titel, 'de', { sensitivity: 'base' }));
+    }
+
+    function ist_mobile_ansicht() {
+        return window.matchMedia('(max-width: 760px)').matches;
+    }
+
+    function setze_einstellungen_offen(offen) {
+        const dock = document.getElementById('control_dock');
+        const button = document.getElementById('btn_settings_toggle');
+        dock.classList.toggle('is-open', offen);
+        if (button) button.setAttribute('aria-expanded', offen ? 'true' : 'false');
+    }
+
+    function toggle_einstellungen() {
+        const dock = document.getElementById('control_dock');
+        setze_einstellungen_offen(!dock.classList.contains('is-open'));
+    }
+
+    function uebernehme_einstellungen() {
+        if (ist_mobile_ansicht()) {
+            setze_einstellungen_offen(false);
+            document.getElementById('frage_stage').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    }
+
+    async function ermittle_themen_dateien() {
+        try {
+            const antwort = await fetch('./', { cache: 'no-store' });
+            if (!antwort.ok) throw new Error('Verzeichnisliste nicht abrufbar');
+
+            const html_text = await antwort.text();
+            const parser = new DOMParser();
+            const dokument = parser.parseFromString(html_text, 'text/html');
+
+            const dateien = Array.from(dokument.querySelectorAll('a'))
+                .map(link => link.getAttribute('href') || '')
+                .map(href => {
+                    try { href = decodeURIComponent(href); } catch (e) {}
+                    return href.split('?')[0].split('#')[0].replace(/^.*\//, '');
+                })
+                .filter(name => /^t_.+\.htm$/i.test(name));
+
+            const eindeutig = [...new Set(dateien)];
+            if (eindeutig.length > 0) {
+                return sortiere_themen(eindeutig.map(datei => ({
+                    datei: datei,
+                    titel: ermittle_themen_titel(datei)
+                })));
+            }
+        } catch (e) {
+        }
+
+        return sortiere_themen([...fallback_themen]);
+    }
+
+    async function initialisiere_themen_auswahl() {
+        const sel_thema = document.getElementById('sel_thema');
+        sel_thema.innerHTML = '';
+
+        const themen = await ermittle_themen_dateien();
+        themen.forEach(thema => {
+            const option = document.createElement('option');
+            option.value = thema.datei;
+            option.textContent = thema.titel;
+            sel_thema.appendChild(option);
+        });
+
+        if (themen.length === 0) {
+            const option = document.createElement('option');
+            option.value = '';
+            option.textContent = 'Keine Themen gefunden';
+            sel_thema.appendChild(option);
+            sel_thema.disabled = true;
+        } else {
+            sel_thema.disabled = false;
+        }
+    }
+
+    function setze_status(text, typ = 'info', mark = 'i') {
+        const status = document.getElementById('display_status');
+        status.classList.remove('is-right', 'is-wrong');
+        if (typ === 'right') status.classList.add('is-right');
+        if (typ === 'wrong') status.classList.add('is-wrong');
+        document.getElementById('feedback_mark').innerText = mark;
+        document.getElementById('feedback_text').innerText = text;
+    }
+
+    function setze_stage_status(typ = '') {
+        const stage = document.getElementById('frage_stage');
+        stage.classList.remove('is-right', 'is-wrong');
+        if (typ) stage.classList.add(typ);
+    }
+
+    function setze_frage_text(text, label = 'Frage') {
+        const element = document.getElementById('display_aussage');
+        document.getElementById('stage_label').innerText = label;
+        element.classList.remove('entering');
+        element.innerText = text;
+        requestAnimationFrame(() => element.classList.add('entering'));
+    }
+
+    function aktualisiere_kopf(frage_text, richtig_text, progress = 0) {
+        document.getElementById('info_frage').innerText = frage_text;
+        document.getElementById('info_punkte').innerText = richtig_text;
+        document.getElementById('score_wert').innerText = score;
+        document.getElementById('progress_fill').style.width = `${Math.max(0, Math.min(100, progress))}%`;
+    }
+
+    async function lade_quiz_daten(nach_dem_laden_starten = false) {
+        const sel_thema = document.getElementById('sel_thema');
+        const datei_name = sel_thema.value;
+        aktueller_titel = sel_thema.options[sel_thema.selectedIndex]?.text || 'Quiz';
+
+        if (!datei_name) {
+            pool_alle = [];
+            pool_aktiv = [];
+            index_aktuell = 0;
+            score = 0;
+            document.getElementById('anzeige_titel').innerText = "Kein Thema gewählt";
+            setze_frage_text("Kein Thema ausgewählt.", "Hinweis");
+            setze_status("Bitte eine Themen-Datei auswählen.");
+            aktualisiere_kopf("Frage 0 / 0", "Richtig: 0", 0);
+            setze_button_status(true);
+            return;
+        }
+
+        document.getElementById('anzeige_titel').innerText = `${aktueller_titel}-Quiz`;
+        try {
+            const antwort = await fetch(datei_name, { cache: 'no-store' });
+            const html_text = await antwort.text();
+            const match = html_text.match(/<div[^>]+id="question_data"[^>]*>([\s\S]*?)<\/div>/);
+            if (!match) throw new Error('question_data nicht gefunden');
+            pool_alle = JSON.parse(match[1].trim());
+            if (nach_dem_laden_starten) {
+                score = 0;
+                filtere_und_starte();
+            } else {
+                aktualisiere_vorschau();
+            }
+        } catch (f) {
+            pool_alle = [];
+            pool_aktiv = [];
+            index_aktuell = 0;
+            score = 0;
+            setze_frage_text("Fehler beim Laden!", "Fehler");
+            setze_status("Die Fragen konnten nicht geladen werden.", "wrong", "!");
+            aktualisiere_kopf("Frage 0 / 0", "Richtig: 0", 0);
+            setze_button_status(true);
+        }
+    }
+
+    function starte_quiz() {
+        wurde_bereits_gestartet = true;
+        document.getElementById('btn_start').innerText = "Neu starten";
+        lade_quiz_daten(true);
+    }
+
+    function mische_fragen_zufaellig(liste) {
+        for (let i = liste.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [liste[i], liste[j]] = [liste[j], liste[i]];
+        }
+        return liste;
+    }
+
+    function ermittle_gefilterte_fragen() {
+        const grad = document.getElementById('sel_grad').value;
+        const max_fragen = parseInt(document.getElementById('sel_anzahl').value, 10);
+        const gefiltert = (grad === 'ohne') ? [...pool_alle] : pool_alle.filter(item => item.grad === grad);
+        return {
+            gefiltert: gefiltert,
+            verfuegbar: Math.min(gefiltert.length, max_fragen),
+            max_fragen: max_fragen
+        };
+    }
+
+    function aktualisiere_vorschau() {
+        const info = ermittle_gefilterte_fragen();
+        pool_aktiv = [];
+        index_aktuell = 0;
+        score = 0;
+        setze_button_status(true);
+        entferne_rahmen();
+        setze_stage_status();
+        aktualisiere_kopf(`Frage 0 / ${info.verfuegbar}`, "Richtig: 0", 0);
+        if (info.verfuegbar === 0) {
+            setze_frage_text("Keine Fragen für diese Auswahl.", "Keine Fragen");
+            setze_status("Bitte Auswahl oder Filter ändern.", "wrong", "!");
+        } else if (wurde_bereits_gestartet) {
+            setze_frage_text("Auswahl geändert. Neu starten.", "Aktualisiert");
+            setze_status(`${info.verfuegbar} Frage(n) stehen bereit.`);
+        } else {
+            setze_frage_text("Bereit?", "Bereit");
+            setze_status(`${info.verfuegbar} Frage(n) stehen bereit.`);
+        }
+    }
+
+    function auswahl_geaendert() {
+        pool_alle = [];
+        pool_aktiv = [];
+        index_aktuell = 0;
+        score = 0;
+        setze_button_status(true);
+        entferne_rahmen();
+        setze_stage_status();
+        aktualisiere_kopf("Frage 0 / 0", "Richtig: 0", 0);
+        setze_frage_text("Lade Fragen...", "Laden");
+        setze_status("Bitte kurz warten.");
+        lade_quiz_daten(false);
+    }
+
+    function filtere_und_starte() {
+        const info = ermittle_gefilterte_fragen();
+        pool_aktiv = mische_fragen_zufaellig(info.gefiltert).slice(0, info.max_fragen);
+        score = 0;
+        index_aktuell = 0;
+        if (pool_aktiv.length === 0) {
+            setze_button_status(true);
+            setze_frage_text("Keine Fragen für diese Auswahl.", "Keine Fragen");
+            setze_status("Bitte Auswahl oder Filter ändern.", "wrong", "!");
+            aktualisiere_kopf("Frage 0 / 0", "Richtig: 0", 0);
+            return;
+        }
+        gebe_frage_aus();
+    }
+
+    function entferne_rahmen() {
+        ['btn_user_richtig', 'btn_user_falsch'].forEach(id => {
+            const btn = document.getElementById(id);
+            if (btn) btn.classList.remove('selected-right', 'selected-wrong', 'is-muted', 'is-correct-choice', 'is-wrong-choice', 'is-actual-correct');
+        });
+    }
+
+    function setze_button_status(status) {
+        document.getElementById('btn_user_richtig').disabled = status;
+        document.getElementById('btn_user_falsch').disabled = status;
+        ist_gesperrt = status;
+    }
+
+    function gebe_frage_aus() {
+        entferne_rahmen();
+        setze_stage_status();
+
+        if (index_aktuell < pool_aktiv.length) {
+            setze_button_status(false);
+            const d = pool_aktiv[index_aktuell];
+            const progress = (index_aktuell / pool_aktiv.length) * 100;
+            setze_frage_text(d.aussage, `Frage ${index_aktuell + 1}`);
+            aktualisiere_kopf(`Frage ${index_aktuell + 1} / ${pool_aktiv.length}`, `Richtig: ${score}`, progress);
+            setze_status("Bereit.");
+            verarbeite_audio_feedback(d.aussage, 'frage');
+        } else {
+            setze_button_status(true);
+            const prozent = pool_aktiv.length ? Math.round((score / pool_aktiv.length) * 100) : 0;
+            const text = `${score} von ${pool_aktiv.length} richtig. ${prozent} Prozent.`;
+            setze_frage_text(text, "Ergebnis");
+            setze_status("Noch eine Runde?", "right", "✓");
+            aktualisiere_kopf(`Frage ${pool_aktiv.length} / ${pool_aktiv.length}`, `Richtig: ${score}`, 100);
+            verarbeite_audio_feedback(text + " Toll gemacht!", 'frage');
+        }
+    }
+
+    async function pruefe_user_antwort(wahl) {
+        if (ist_gesperrt || index_aktuell >= pool_aktiv.length) return;
+        setze_button_status(true);
+
+        const ziel = pool_aktiv[index_aktuell];
+        const korrekt = (wahl === ziel.antwort);
+        const feedback = korrekt ? "Richtig!" : "Falsch!";
+
+        const aktiver_button = document.getElementById(wahl ? 'btn_user_richtig' : 'btn_user_falsch');
+        const korrekter_button = document.getElementById(ziel.antwort ? 'btn_user_richtig' : 'btn_user_falsch');
+        const anderer_button = document.getElementById(wahl ? 'btn_user_falsch' : 'btn_user_richtig');
+        aktiver_button.classList.add(korrekt ? 'selected-right' : 'selected-wrong');
+        aktiver_button.classList.add(korrekt ? 'is-correct-choice' : 'is-wrong-choice');
+        if (korrekt) {
+            anderer_button.classList.add('is-muted');
+        } else {
+            korrekter_button.classList.add('is-actual-correct');
+        }
+        setze_stage_status(korrekt ? 'is-right' : 'is-wrong');
+        setze_status(feedback, korrekt ? 'right' : 'wrong', korrekt ? '✓' : '×');
+        if (korrekt) score++;
+        index_aktuell++;
+        aktualisiere_kopf(`Frage ${Math.min(index_aktuell, pool_aktiv.length)} / ${pool_aktiv.length}`, `Richtig: ${score}`, (index_aktuell / pool_aktiv.length) * 100);
+
+        await verarbeite_audio_feedback(feedback, korrekt ? 'correct' : 'wrong');
+        setTimeout(gebe_frage_aus, 650);
+    }
+
+    function verarbeite_audio_feedback(text, typ) {
+        return new Promise((resolve) => {
+            const wahl = document.getElementById('sel_audio').value;
+
+            if (typ === 'frage') {
+                if (wahl === 'sprache' || wahl === 'beides') sprich(text);
+                resolve();
+                return;
+            }
+
+            if (wahl === 'ohne') {
+                resolve();
+                return;
+            }
+
+            if (wahl === 'ton' || wahl === 'beides') {
+                const audio_obj = (typ === 'correct') ? sound_richtig : sound_falsch;
+                audio_obj.volume = 1;
+                audio_obj.currentTime = 0;
+                audio_obj.play();
+
+                audio_obj.onended = () => {
+                    setTimeout(() => {
+                        if (wahl === 'beides') {
+                            sprich(text, resolve);
+                        } else {
+                            resolve();
+                        }
+                    }, 200);
+                };
+                audio_obj.onerror = () => {
+                    if (wahl === 'beides') sprich(text, resolve);
+                    else resolve();
+                };
+            } else if (wahl === 'sprache') {
+                sprich(text, resolve);
+            }
+        });
+    }
+
+    function sprich(text, callback) {
+        window.speechSynthesis.cancel();
+        const s = new SpeechSynthesisUtterance(text);
+        s.lang = 'de-DE';
+        if (callback) s.onend = callback;
+        window.speechSynthesis.speak(s);
+    }
+
+    window.onload = async function() {
+        setze_button_status(true);
+        setze_einstellungen_offen(!ist_mobile_ansicht());
+        aktualisiere_kopf("Frage 0 / 0", "Richtig: 0", 0);
+        setze_frage_text("Lade...", "Laden");
+        setze_status("Bitte kurz warten.");
+        await initialisiere_themen_auswahl();
+        setze_frage_text("Bereit?", "Bereit");
+        lade_quiz_daten(false);
+    };
+
+    window.addEventListener('resize', () => {
+        setze_einstellungen_offen(!ist_mobile_ansicht());
+    });
+</script>
+</body>
+</html>

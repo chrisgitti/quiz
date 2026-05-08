@@ -263,7 +263,7 @@
             gap: 14px;
         }
 
-        .answer_grid.is-quatro {
+        .answer_grid.is-quattro {
             grid-template-columns: 1fr 1fr;
         }
 
@@ -308,12 +308,14 @@
             background: linear-gradient(135deg, #16b978, #1fdf82);
         }
 
-        .btn_quatro {
+        .btn_quattro {
             background: var(--panel);
             border: 2px solid var(--line);
             color: var(--ink);
             justify-content: flex-start;
             padding-inline: 18px;
+            font-size: clamp(0.85rem, 2vw, 1.05rem);
+            font-weight: 700;
         }
 
         .btn_false {
@@ -326,16 +328,20 @@
 
         .answer_text {
             min-width: 0;
+            flex: 1;
+            text-align: left;
             overflow-wrap: anywhere;
         }
 
         .answer_icon {
             width: 42px;
             height: 42px;
+            flex-shrink: 0;
             border-radius: 50%;
             background: rgba(255, 255, 255, 0.2);
             display: grid;
             place-items: center;
+            font-size: 1.15rem;
             line-height: 1;
         }
 
@@ -408,23 +414,23 @@
             100% { transform: translateY(0) scale(1); box-shadow: 0 0 0 2px rgba(31, 223, 130, 0.22), 0 18px 46px rgba(0, 0, 0, 0.28); }
         }
 
-        .mode-quatro .answer_button.selected-right {
+        .mode-quattro .answer_button.selected-right {
             background: var(--green) !important;
             color: white;
         }
 
-        .mode-quatro .answer_button.selected-wrong {
+        .mode-quattro .answer_button.selected-wrong {
             background: var(--red) !important;
             color: white;
         }
 
-        .mode-quatro .answer_button.is-actual-correct {
+        .mode-quattro .answer_button.is-actual-correct {
             border-color: var(--amber) !important;
             box-shadow: 0 0 0 4px rgba(255, 209, 102, 0.5) !important;
-            animation: reveal_correct_quatro 640ms ease both !important;
+            animation: reveal_correct_quattro 640ms ease both !important;
         }
 
-        @keyframes reveal_correct_quatro {
+        @keyframes reveal_correct_quattro {
             0% { transform: translateY(0) scale(1); border-color: var(--line); box-shadow: 0 18px 46px rgba(0, 0, 0, 0.28); }
             45% { transform: translateY(-2px) scale(1.025); border-color: var(--amber); box-shadow: 0 0 0 6px rgba(255, 209, 102, 0.6), 0 0 30px rgba(255, 209, 102, 0.48); }
             100% { transform: translateY(0) scale(1); border-color: var(--amber); box-shadow: 0 0 0 4px rgba(255, 209, 102, 0.5), 0 18px 46px rgba(0, 0, 0, 0.28); }
@@ -603,7 +609,7 @@
             }
 
             .answer_grid,
-            .answer_grid.is-quatro {
+            .answer_grid.is-quattro {
                 grid-template-columns: 1fr;
                 gap: 8px;
             }
@@ -654,7 +660,7 @@
             <span class="label">Modus</span>
             <select id="sel_modus" onchange="modus_geaendert()">
                 <option value="duo">Duo</option>
-                <option value="quatro">Quatro</option>
+                <option value="quattro">Quattro</option>
             </select>
         </label>
         <label class="field">
@@ -728,11 +734,11 @@
             <span class="answer_icon">B</span>
             <span class="answer_text">Falsch</span>
         </button>
-        <button id="btn_answer_2" class="answer_button btn_quatro is-hidden" onclick="pruefe_user_antwort(2)" disabled>
+        <button id="btn_answer_2" class="answer_button btn_quattro is-hidden" onclick="pruefe_user_antwort(2)" disabled>
             <span class="answer_icon">C</span>
             <span class="answer_text">Antwort C</span>
         </button>
-        <button id="btn_answer_3" class="answer_button btn_quatro is-hidden" onclick="pruefe_user_antwort(3)" disabled>
+        <button id="btn_answer_3" class="answer_button btn_quattro is-hidden" onclick="pruefe_user_antwort(3)" disabled>
             <span class="answer_icon">D</span>
             <span class="answer_text">Antwort D</span>
         </button>
@@ -766,7 +772,7 @@
             { datei: 'td_society.htm', titel: 'Society' },
             { datei: 'td_tiere.htm', titel: 'Tiere' }
         ],
-        quatro: [
+        quattro: [
             { datei: 'tq_auswahlverfahren.htm', titel: 'Auswahlverfahren' },
             { datei: 'tq_poolbillardregeln.htm', titel: 'Poolbillardregeln' }
         ]
@@ -809,7 +815,7 @@
     }
 
     async function ermittle_themen_dateien() {
-        const muster = aktueller_modus === 'quatro' ? /^tq_.+\.htm$/i : /^td_.+\.htm$/i;
+        const muster = aktueller_modus === 'quattro' ? /^tq_.+\.htm$/i : /^td_.+\.htm$/i;
         try {
             const antwort = await fetch('./', { cache: 'no-store' });
             if (!antwort.ok) throw new Error('Verzeichnisliste nicht abrufbar');
@@ -889,10 +895,10 @@
 
     function konfiguriere_antwort_buttons(frage = null) {
         const grid = document.getElementById('answer_grid');
-        grid.classList.toggle('is-quatro', aktueller_modus === 'quatro');
-        grid.classList.toggle('mode-quatro', aktueller_modus === 'quatro');
+        grid.classList.toggle('is-quattro', aktueller_modus === 'quattro');
+        grid.classList.toggle('mode-quattro', aktueller_modus === 'quattro');
         alle_antwort_buttons().forEach((btn, i) => {
-            btn.classList.remove('btn_true', 'btn_false', 'btn_quatro', 'is-hidden');
+            btn.classList.remove('btn_true', 'btn_false', 'btn_quattro', 'is-hidden');
             btn.querySelector('.answer_icon').innerText = ['A', 'B', 'C', 'D'][i];
             btn.querySelector('.answer_text').innerText = '';
             if (aktueller_modus === 'duo') {
@@ -901,7 +907,7 @@
                 btn.querySelector('.answer_icon').innerText = i === 0 ? '✓' : '×';
                 btn.querySelector('.answer_text').innerText = i === 0 ? 'Richtig' : 'Falsch';
             } else {
-                btn.classList.add('btn_quatro');
+                btn.classList.add('btn_quattro');
                 btn.querySelector('.answer_text').innerText = frage?.antworten?.[i] || `Antwort ${['A','B','C','D'][i]}`;
             }
         });
@@ -920,7 +926,7 @@
             setze_button_status(true);
             return;
         }
-        document.getElementById('anzeige_titel').innerText = `${aktueller_titel}-Quiz · ${aktueller_modus === 'duo' ? 'Duo' : 'Quatro'}`;
+        document.getElementById('anzeige_titel').innerText = `${aktueller_titel}-Quiz · ${aktueller_modus === 'duo' ? 'Duo' : 'Quattro'}`;
         try {
             const antwort = await fetch(datei_name, { cache: 'no-store' });
             const html_text = await antwort.text();

@@ -585,6 +585,7 @@
         .timer_row { margin: 0; }
         .timer_track { height: 6px; border-radius: 999px; background: rgba(255,255,255,0.1); overflow: hidden; }
         .timer_fill { width: 100%; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--red), var(--amber)); transition: width 1s linear; }
+        .timer_scale { display: flex; justify-content: space-between; font-size: 0.64rem; font-weight: 700; color: var(--muted); padding: 3px 2px 0; letter-spacing: 0.01em; }
 
         /* === LIVE SCORE PANEL === */
         .live_score_panel {
@@ -725,7 +726,7 @@
         </div>
         <div class="score_pill" aria-live="polite">
             <div class="score_value" id="score_wert">0</div>
-            <div class="score_label">Richtig</div>
+            <div class="score_label" id="score_label">Richtig</div>
         </div>
         <button id="btn_start" class="start_button" onclick="starte_quiz()">Starten</button>
         <button class="mobile_settings_button" id="btn_settings_toggle" onclick="toggle_einstellungen()" aria-controls="control_dock" aria-expanded="false" title="Einstellungen">⚙</button>
@@ -806,6 +807,10 @@
         <div class="timer_row" id="timer_row" style="display:none">
             <div class="timer_track">
                 <div class="timer_fill" id="timer_fill"></div>
+            </div>
+            <div class="timer_scale" id="timer_scale" style="display:none">
+                <span>1.500 Pkt.</span>
+                <span>1.000 Pkt.</span>
             </div>
         </div>
 
@@ -1456,6 +1461,7 @@
 
     let socket_online = null;
     let online_ist_host = false;
+    let online_eigene_punkte = 0;
 
     function op_zeige(panel_id) {
         ['op_start','op_host_erstellen','op_host_warten','op_gast_beitreten','op_gast_warten','op_rangliste']
@@ -1532,6 +1538,12 @@
             document.getElementById('online_overlay').style.display = 'none';
             document.getElementById('live_score_panel').style.display = 'none';
             document.getElementById('online_verlassen_bar').style.display = 'flex';
+            document.getElementById('timer_scale').style.display = '';
+            if (index === 0) {
+                online_eigene_punkte = 0;
+                document.getElementById('score_wert').textContent = '0';
+                document.getElementById('score_label').textContent = 'Punkte';
+            }
             aktueller_modus = modus;
             document.getElementById('sel_modus').value = modus;
             const grid = document.getElementById('answer_grid');
@@ -1564,6 +1576,10 @@
         });
         socket_online.on('antwort_bestaetigt', ({ korrekt, antwort_index, punkte }) => {
             setze_button_status(true);
+            if (korrekt) {
+                online_eigene_punkte += punkte;
+                document.getElementById('score_wert').textContent = online_eigene_punkte.toLocaleString('de-DE');
+            }
             const status_text = korrekt
                 ? `Richtig! +${punkte.toLocaleString('de-DE')} Pkt.`
                 : 'Falsch!';
@@ -1714,8 +1730,12 @@
         document.getElementById('online_overlay').style.display = 'none';
         document.getElementById('live_score_panel').style.display = 'none';
         document.getElementById('timer_row').style.display = 'none';
+        document.getElementById('timer_scale').style.display = 'none';
         document.getElementById('online_verlassen_bar').style.display = 'none';
         document.getElementById('sel_quelle').value = 'lokal';
+        online_eigene_punkte = 0;
+        document.getElementById('score_wert').textContent = '0';
+        document.getElementById('score_label').textContent = 'Richtig';
     }
 
     function online_beenden() {

@@ -581,6 +581,81 @@
             }
         }
 
+        /* === TIMER BAR === */
+        .timer_row { margin: 0; }
+        .timer_track { height: 6px; border-radius: 999px; background: rgba(255,255,255,0.1); overflow: hidden; }
+        .timer_fill { width: 100%; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--red), var(--amber)); transition: width 1s linear; }
+
+        /* === LIVE SCORE PANEL === */
+        .live_score_panel {
+            border: 1px solid var(--line); border-radius: 16px;
+            background: rgba(255,255,255,0.065); backdrop-filter: blur(16px);
+            padding: 12px 16px;
+        }
+        .live_score_title { color: var(--muted); font-size: 0.68rem; font-weight: 900; text-transform: uppercase; margin-bottom: 8px; }
+        .live_score_items { display: flex; flex-direction: column; gap: 5px; }
+        .live_score_item {
+            display: grid; grid-template-columns: 1fr auto; gap: 8px;
+            padding: 5px 10px; border-radius: 8px; background: rgba(255,255,255,0.06);
+            font-size: 0.86rem; font-weight: 800;
+        }
+
+        /* === ONLINE OVERLAY === */
+        .online_overlay {
+            position: fixed; inset: 0; z-index: 100;
+            background: rgba(7,9,15,0.85); backdrop-filter: blur(10px);
+            display: flex; align-items: center; justify-content: center; padding: 20px;
+        }
+        .op_fehler {
+            position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+            width: calc(100% - 40px); max-width: 460px; z-index: 101;
+            color: var(--red); font-size: 0.87rem; font-weight: 800;
+            padding: 10px 14px; border-radius: 10px;
+            background: rgba(255,66,104,0.14); border: 1px solid rgba(255,66,104,0.35);
+        }
+        .online_panel {
+            width: min(100%, 460px); border: 1px solid var(--line); border-radius: 24px;
+            background: rgba(10,18,38,0.97); box-shadow: var(--shadow);
+            padding: 30px 28px; display: flex; flex-direction: column; gap: 16px;
+        }
+        .op_title { margin: 0; font-size: 1.45rem; font-weight: 900; }
+        .op_sub { margin: 0; color: var(--muted); font-size: 0.9rem; }
+        .op_code_box {
+            text-align: center; padding: 18px 12px;
+            border: 1px solid var(--line); border-radius: 14px; background: rgba(255,255,255,0.04);
+        }
+        .op_code_label { color: var(--muted); font-size: 0.68rem; font-weight: 900; text-transform: uppercase; margin-bottom: 6px; }
+        .op_code { font-size: 2.6rem; font-weight: 950; letter-spacing: 0.18em; color: var(--cyan); font-variant-numeric: tabular-nums; }
+        .op_label { display: block; color: var(--muted); font-size: 0.68rem; font-weight: 900; text-transform: uppercase; }
+        .op_input {
+            display: block; width: 100%; height: 42px; margin-top: 5px;
+            border: 1px solid var(--line); border-radius: 10px;
+            background: rgba(255,255,255,0.07); color: var(--ink);
+            padding: 0 12px; font: inherit; font-size: 0.95rem; outline: none;
+        }
+        .op_input_code { font-size: 1.35rem; font-weight: 900; letter-spacing: 0.14em; text-align: center; text-transform: uppercase; }
+        .op_input:focus { border-color: var(--cyan); box-shadow: 0 0 0 3px rgba(52,214,210,0.18); }
+        .op_btn_group { display: flex; flex-direction: column; gap: 9px; }
+        .op_btn {
+            width: 100%; height: 46px; border: 0; border-radius: 13px;
+            font: inherit; font-size: 0.93rem; font-weight: 900; cursor: pointer;
+            transition: transform 130ms ease, filter 130ms ease;
+        }
+        .op_btn:hover:not(:disabled) { transform: translateY(-2px); filter: brightness(1.08); }
+        .op_btn:active:not(:disabled) { transform: translateY(1px); }
+        .op_btn:disabled { opacity: 0.4; cursor: default; }
+        .op_btn_primary { background: var(--cyan); color: #041114; }
+        .op_btn_secondary { background: rgba(255,255,255,0.11); color: var(--ink); border: 1px solid var(--line); }
+        .op_btn_ghost { background: transparent; color: var(--muted); font-size: 0.83rem; height: 34px; }
+        .op_spieler_liste { display: flex; flex-direction: column; gap: 7px; max-height: 200px; overflow-y: auto; }
+        .spieler_item { padding: 9px 13px; border-radius: 9px; background: rgba(255,255,255,0.07); font-weight: 800; font-size: 0.89rem; }
+        .spieler_item.ist-host { border: 1px solid rgba(52,214,210,0.35); color: var(--cyan); }
+        .op_rangliste { display: flex; flex-direction: column; gap: 7px; }
+        .rangliste_item { display: grid; grid-template-columns: 40px 1fr auto; align-items: center; gap: 10px; padding: 9px 13px; border-radius: 9px; background: rgba(255,255,255,0.07); }
+        .rangliste_rang { font-size: 1.1rem; font-weight: 950; text-align: center; color: var(--muted); }
+        .rangliste_name { font-weight: 800; }
+        .rangliste_score { font-weight: 900; color: var(--cyan); font-size: 0.9rem; }
+
         @media (max-width: 520px) {
             .top_bar {
                 grid-template-columns: minmax(0, 1fr) auto auto;
@@ -653,6 +728,7 @@
             <select id="sel_quelle" onchange="quelle_geaendert()">
                 <option value="lokal">Lokal</option>
                 <option value="otdb">Open Trivia DB</option>
+                <option value="online">Online</option>
             </select>
         </label>
         <label class="field">
@@ -718,6 +794,12 @@
             </div>
         </div>
 
+        <div class="timer_row" id="timer_row" style="display:none">
+            <div class="timer_track">
+                <div class="timer_fill" id="timer_fill"></div>
+            </div>
+        </div>
+
         <div class="question_area">
             <div class="stage_label" id="stage_label">Bereit</div>
             <p class="question_text" id="display_aussage">Bereit?</p>
@@ -748,8 +830,78 @@
             <span class="answer_text">Antwort D</span>
         </button>
     </section>
+
+    <div class="live_score_panel" id="live_score_panel" style="display:none">
+        <div class="live_score_title">Zwischenstand</div>
+        <div class="live_score_items" id="live_score_inhalt"></div>
+    </div>
     </div>
 </main>
+
+<div id="online_overlay" class="online_overlay" style="display:none">
+    <div class="op_fehler" id="op_fehler_global" style="display:none"></div>
+
+    <div class="online_panel" id="op_start">
+        <h2 class="op_title">Online spielen</h2>
+        <p class="op_sub">Eröffne einen Raum oder tritt einem bestehenden bei.</p>
+        <div class="op_btn_group">
+            <button class="op_btn op_btn_primary" onclick="op_host_ansicht()">Raum erstellen</button>
+            <button class="op_btn op_btn_secondary" onclick="op_gast_ansicht()">Raum beitreten</button>
+        </div>
+        <button class="op_btn op_btn_ghost" onclick="online_beenden()">Abbrechen</button>
+    </div>
+
+    <div class="online_panel" id="op_host_erstellen" style="display:none">
+        <h2 class="op_title">Raum erstellen</h2>
+        <p class="op_sub">Thema: <strong id="op_host_thema">–</strong></p>
+        <label class="op_label">Dein Name
+            <input id="op_host_name" class="op_input" type="text" maxlength="24" placeholder="Host" value="Host">
+        </label>
+        <div class="op_btn_group">
+            <button class="op_btn op_btn_primary" onclick="op_host_erstellen()">Erstellen &amp; warten</button>
+            <button class="op_btn op_btn_ghost" onclick="op_zeige('op_start')">Zurück</button>
+        </div>
+    </div>
+
+    <div class="online_panel" id="op_host_warten" style="display:none">
+        <h2 class="op_title">Warteraum</h2>
+        <div class="op_code_box">
+            <div class="op_code_label">Raumcode – weitergeben!</div>
+            <div class="op_code" id="op_raum_code">------</div>
+        </div>
+        <div class="op_spieler_liste" id="op_spieler_liste_host"></div>
+        <div class="op_btn_group">
+            <button class="op_btn op_btn_primary" id="op_start_btn" onclick="op_spiel_starten()" disabled>Spiel starten</button>
+            <button class="op_btn op_btn_ghost" onclick="online_beenden()">Abbrechen</button>
+        </div>
+    </div>
+
+    <div class="online_panel" id="op_gast_beitreten" style="display:none">
+        <h2 class="op_title">Raum beitreten</h2>
+        <label class="op_label">Raumcode
+            <input id="op_gast_code" class="op_input op_input_code" type="text" maxlength="6" placeholder="ABC123" oninput="this.value=this.value.toUpperCase()">
+        </label>
+        <label class="op_label">Dein Name
+            <input id="op_gast_name" class="op_input" type="text" maxlength="24" placeholder="Spieler">
+        </label>
+        <div class="op_btn_group">
+            <button class="op_btn op_btn_primary" onclick="op_gast_beitreten()">Beitreten</button>
+            <button class="op_btn op_btn_ghost" onclick="op_zeige('op_start')">Zurück</button>
+        </div>
+    </div>
+
+    <div class="online_panel" id="op_gast_warten" style="display:none">
+        <h2 class="op_title">Warte auf Spielstart…</h2>
+        <div class="op_spieler_liste" id="op_spieler_liste_gast"></div>
+        <button class="op_btn op_btn_ghost" onclick="online_beenden()">Verlassen</button>
+    </div>
+
+    <div class="online_panel" id="op_rangliste" style="display:none">
+        <h2 class="op_title">Endergebnis</h2>
+        <div class="op_rangliste" id="op_rangliste_inhalt"></div>
+        <button class="op_btn op_btn_primary" onclick="online_beenden()">Beenden</button>
+    </div>
+</div>
 
 <script>
     let pool_alle = [];
@@ -961,9 +1113,10 @@
     }
 
     function starte_quiz() {
+        const quelle = document.getElementById('sel_quelle').value;
+        if (quelle === 'online') { online_oeffne_overlay(); return; }
         wurde_bereits_gestartet = true;
         document.getElementById('btn_start').innerText = 'Neu starten';
-        const quelle = document.getElementById('sel_quelle').value;
         if (quelle === 'otdb') lade_otdb_fragen();
         else lade_quiz_daten(true);
     }
@@ -1053,7 +1206,13 @@
     }
 
     async function pruefe_user_antwort(wahl_index) {
-        if (ist_gesperrt || index_aktuell >= pool_aktiv.length) return;
+        if (ist_gesperrt) return;
+        if (document.getElementById('sel_quelle').value === 'online') {
+            setze_button_status(true);
+            if (socket_online?.connected) socket_online.emit('antwort_senden', { antwort_index: wahl_index });
+            return;
+        }
+        if (index_aktuell >= pool_aktiv.length) return;
         setze_button_status(true);
         const ziel = pool_aktiv[index_aktuell];
         const richtig_index = richtige_antwort_index(ziel);
@@ -1126,7 +1285,18 @@
             setze_frage_text('Bereit?', 'Bereit');
             setze_status('Open Trivia DB – Starten zum Laden der Fragen.');
             lade_otdb_kategorien();
+        } else if (quelle === 'online') {
+            feld_thema.style.display = '';
+            feld_kategorie.style.display = 'none';
+            setze_frage_text('Online-Modus', 'Online');
+            setze_status('Raum erstellen oder beitreten.');
+            lade_quiz_daten(false);
+            online_oeffne_overlay();
         } else {
+            if (socket_online) { socket_online.disconnect(); socket_online = null; }
+            document.getElementById('online_overlay').style.display = 'none';
+            document.getElementById('live_score_panel').style.display = 'none';
+            document.getElementById('timer_row').style.display = 'none';
             feld_thema.style.display = '';
             feld_kategorie.style.display = 'none';
             setze_frage_text('Lade Fragen...', 'Laden');
@@ -1265,6 +1435,270 @@
     };
 
     window.addEventListener('resize', () => setze_einstellungen_offen(!ist_mobile_ansicht()));
+
+    // === ONLINE MODUS ===
+    const ONLINE_SERVER_URL = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+        ? 'http://localhost:3010'
+        : 'https://quiz-server-rjv7.onrender.com';
+
+    let socket_online = null;
+    let online_ist_host = false;
+
+    function op_zeige(panel_id) {
+        ['op_start','op_host_erstellen','op_host_warten','op_gast_beitreten','op_gast_warten','op_rangliste']
+            .forEach(id => { const el = document.getElementById(id); if (el) el.style.display = 'none'; });
+        const el = document.getElementById(panel_id);
+        if (el) el.style.display = 'flex';
+        document.getElementById('op_fehler_global').style.display = 'none';
+    }
+
+    function online_oeffne_overlay() {
+        if (document.getElementById('sel_quelle').value !== 'online') return;
+        document.getElementById('online_overlay').style.display = 'flex';
+        op_zeige('op_start');
+    }
+
+    function op_host_ansicht() {
+        const sel = document.getElementById('sel_thema');
+        document.getElementById('op_host_thema').textContent = sel?.options[sel?.selectedIndex]?.text || '–';
+        op_zeige('op_host_erstellen');
+        setTimeout(() => document.getElementById('op_host_name').select(), 60);
+    }
+
+    function op_gast_ansicht() {
+        op_zeige('op_gast_beitreten');
+        setTimeout(() => document.getElementById('op_gast_code').focus(), 60);
+    }
+
+    async function online_verbinden() {
+        if (socket_online?.connected) return;
+        if (socket_online) { socket_online.disconnect(); socket_online = null; }
+        if (!window.io) {
+            await new Promise((resolve, reject) => {
+                const s = document.createElement('script');
+                s.src = 'https://cdn.socket.io/4.7.5/socket.io.min.js';
+                s.onload = resolve;
+                s.onerror = () => reject(new Error('Socket.IO laden fehlgeschlagen'));
+                document.head.appendChild(s);
+            });
+        }
+        await new Promise((resolve, reject) => {
+            socket_online = window.io(ONLINE_SERVER_URL, { transports: ['websocket'], reconnectionAttempts: 3, timeout: 8000 });
+            registriere_socket_events();
+            socket_online.once('connect', resolve);
+            socket_online.once('connect_error', (err) => {
+                online_zeige_fehler('Server nicht erreichbar: ' + (err.message || 'Timeout'));
+                reject(err);
+            });
+        });
+    }
+
+    function registriere_socket_events() {
+        socket_online.on('raum_erstellt', ({ code }) => {
+            document.getElementById('op_raum_code').textContent = code;
+            op_zeige('op_host_warten');
+        });
+        socket_online.on('raum_beigetreten', ({ code, modus }) => {
+            aktueller_modus = modus;
+            document.getElementById('sel_modus').value = modus;
+            konfiguriere_antwort_buttons();
+            op_zeige('op_gast_warten');
+        });
+        socket_online.on('spieler_liste', (liste) => {
+            const html = liste.map(s =>
+                `<div class="spieler_item${s.host ? ' ist-host' : ''}">${s.host ? '⭐ ' : ''}${s.name}</div>`
+            ).join('');
+            ['op_spieler_liste_host','op_spieler_liste_gast'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.innerHTML = html;
+            });
+            const btn = document.getElementById('op_start_btn');
+            if (btn) btn.disabled = (liste.length < 1);
+        });
+        socket_online.on('frage', ({ index, total, text, antworten, modus }) => {
+            document.getElementById('online_overlay').style.display = 'none';
+            document.getElementById('live_score_panel').style.display = 'none';
+            aktueller_modus = modus;
+            document.getElementById('sel_modus').value = modus;
+            const grid = document.getElementById('answer_grid');
+            grid.classList.toggle('is-quattro', modus === 'quattro');
+            grid.classList.toggle('mode-quattro', modus === 'quattro');
+            alle_antwort_buttons().forEach((btn, i) => {
+                btn.classList.remove('btn_true','btn_false','btn_quattro','is-hidden',
+                    'selected-right','selected-wrong','is-muted','is-correct-choice','is-wrong-choice','is-actual-correct');
+                if (modus === 'duo') {
+                    if (i > 1) { btn.classList.add('is-hidden'); return; }
+                    btn.classList.add(i === 0 ? 'btn_true' : 'btn_false');
+                    btn.querySelector('.answer_icon').textContent = i === 0 ? '✓' : '×';
+                    btn.querySelector('.answer_text').textContent = antworten[i] || (i === 0 ? 'Richtig' : 'Falsch');
+                } else {
+                    btn.classList.add('btn_quattro');
+                    btn.querySelector('.answer_icon').textContent = ['A','B','C','D'][i];
+                    btn.querySelector('.answer_text').textContent = antworten[i] || '';
+                }
+            });
+            entferne_rahmen(); setze_stage_status();
+            setze_frage_text(text, `Frage ${index + 1} / ${total}`);
+            aktualisiere_kopf(`Frage ${index + 1} / ${total}`, '', (index / total) * 100);
+            setze_button_status(false);
+            setze_status('Antworte jetzt!');
+            starte_online_timer(15);
+        });
+        socket_online.on('countdown', ({ sekunden }) => {
+            const fill = document.getElementById('timer_fill');
+            if (fill) { fill.style.transition = 'width 1s linear'; fill.style.width = `${(sekunden / 15) * 100}%`; }
+        });
+        socket_online.on('antwort_bestaetigt', ({ korrekt }) => {
+            setze_button_status(true);
+            setze_status(korrekt ? 'Richtig!' : 'Falsch!', korrekt ? 'right' : 'wrong', korrekt ? '✓' : '×');
+            setze_stage_status(korrekt ? 'is-right' : 'is-wrong');
+            const wahl = document.getElementById('sel_audio').value;
+            if (wahl === 'ton' || wahl === 'beides') {
+                const a = korrekt ? sound_richtig : sound_falsch;
+                a.currentTime = 0; a.play().catch(() => {});
+            }
+        });
+        socket_online.on('aufloesung', ({ richtig_index, scores }) => {
+            stoppe_online_timer(); setze_button_status(true);
+            alle_antwort_buttons().forEach((btn, i) => {
+                if (btn.classList.contains('is-hidden')) return;
+                if (i === richtig_index) btn.classList.add('is-actual-correct');
+                else btn.classList.add('is-muted');
+            });
+            const panel = document.getElementById('live_score_panel');
+            const inhalt = document.getElementById('live_score_inhalt');
+            if (scores?.length) {
+                const sorted = [...scores].sort((a, b) => b.score - a.score);
+                inhalt.innerHTML = sorted.map((s, i) =>
+                    `<div class="live_score_item"><span>${i + 1}. ${s.name}</span><span>${s.score}</span></div>`
+                ).join('');
+                panel.style.display = '';
+            }
+        });
+        socket_online.on('spiel_ende', ({ rangliste }) => {
+            stoppe_online_timer(); setze_button_status(true);
+            document.getElementById('live_score_panel').style.display = 'none';
+            const inhalt = document.getElementById('op_rangliste_inhalt');
+            const medaillen = ['🥇','🥈','🥉'];
+            inhalt.innerHTML = rangliste.map(item =>
+                `<div class="rangliste_item">
+                    <div class="rangliste_rang">${medaillen[item.rang - 1] || item.rang}</div>
+                    <div class="rangliste_name">${item.name}</div>
+                    <div class="rangliste_score">${item.score}</div>
+                </div>`
+            ).join('');
+            document.getElementById('online_overlay').style.display = 'flex';
+            op_zeige('op_rangliste');
+        });
+        socket_online.on('raum_geschlossen', ({ meldung }) => {
+            stoppe_online_timer();
+            online_beenden_still();
+            setze_frage_text(meldung, 'Online');
+            setze_status('Raum geschlossen.', 'wrong', '!');
+        });
+        socket_online.on('fehler', ({ meldung }) => {
+            online_zeige_fehler(meldung);
+            const btn = document.getElementById('op_start_btn');
+            if (btn && btn.disabled && btn.textContent.includes('lädt')) {
+                btn.disabled = false; btn.textContent = 'Spiel starten';
+            }
+        });
+    }
+
+    async function op_host_erstellen() {
+        const name = document.getElementById('op_host_name').value.trim() || 'Host';
+        online_ist_host = true;
+        try {
+            await online_verbinden();
+            socket_online.emit('raum_erstellen', { modus: aktueller_modus, name });
+        } catch (_) {}
+    }
+
+    async function op_gast_beitreten() {
+        const code = document.getElementById('op_gast_code').value.trim().toUpperCase();
+        const name = document.getElementById('op_gast_name').value.trim() || 'Gast';
+        if (code.length !== 6) { online_zeige_fehler('Bitte einen 6-stelligen Code eingeben.'); return; }
+        online_ist_host = false;
+        try {
+            await online_verbinden();
+            socket_online.emit('raum_beitreten', { code, name });
+        } catch (_) {}
+    }
+
+    async function op_spiel_starten() {
+        const btn = document.getElementById('op_start_btn');
+        if (btn) { btn.disabled = true; btn.textContent = 'Lädt…'; }
+        try {
+            const sel = document.getElementById('sel_thema');
+            if (!sel?.value) { online_zeige_fehler('Kein Thema gewählt.'); return; }
+            const antwort = await fetch(sel.value, { cache: 'no-store' });
+            const html_text = await antwort.text();
+            const match = html_text.match(/<div[^>]+id="question_data"[^>]*>([\s\S]*?)<\/div>/);
+            if (!match) { online_zeige_fehler('Thema konnte nicht geladen werden.'); return; }
+            let alle = JSON.parse(match[1].trim());
+            const grad = document.getElementById('sel_grad').value;
+            if (grad !== 'ohne') alle = alle.filter(f => f.grad === grad);
+            const max = parseInt(document.getElementById('sel_anzahl').value, 10) || 20;
+            for (let i = alle.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [alle[i], alle[j]] = [alle[j], alle[i]];
+            }
+            alle = alle.slice(0, max);
+            if (!alle.length) { online_zeige_fehler('Keine Fragen für diese Auswahl.'); return; }
+            const fragen = alle.map(f => aktueller_modus === 'duo'
+                ? { text: f.aussage, antworten: ['Richtig', 'Falsch'], richtig: f.antwort ? 0 : 1 }
+                : { text: f.frage, antworten: f.antworten, richtig: f.richtig }
+            );
+            socket_online.emit('spiel_starten', { fragen });
+        } catch (e) {
+            online_zeige_fehler('Fehler: ' + e.message);
+            if (btn) { btn.disabled = false; btn.textContent = 'Spiel starten'; }
+        }
+    }
+
+    function starte_online_timer(sekunden) {
+        const row = document.getElementById('timer_row');
+        const fill = document.getElementById('timer_fill');
+        if (!row || !fill) return;
+        row.style.display = '';
+        fill.style.transition = 'none';
+        fill.style.width = '100%';
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+            fill.style.transition = `width ${sekunden}s linear`;
+            fill.style.width = '0%';
+        }));
+    }
+
+    function stoppe_online_timer() {
+        const fill = document.getElementById('timer_fill');
+        if (!fill) return;
+        const w = getComputedStyle(fill).width;
+        const pw = getComputedStyle(fill.parentElement).width;
+        fill.style.transition = 'none';
+        fill.style.width = pw ? `${(parseFloat(w) / parseFloat(pw)) * 100}%` : '0%';
+    }
+
+    function online_zeige_fehler(text) {
+        const el = document.getElementById('op_fehler_global');
+        if (!el) return;
+        el.textContent = text;
+        el.style.display = '';
+        clearTimeout(el._t);
+        el._t = setTimeout(() => { el.style.display = 'none'; }, 5000);
+    }
+
+    function online_beenden_still() {
+        if (socket_online) { socket_online.disconnect(); socket_online = null; }
+        document.getElementById('online_overlay').style.display = 'none';
+        document.getElementById('live_score_panel').style.display = 'none';
+        document.getElementById('timer_row').style.display = 'none';
+    }
+
+    function online_beenden() {
+        online_beenden_still();
+        const sel = document.getElementById('sel_quelle');
+        if (sel.value === 'online') { sel.value = 'lokal'; quelle_geaendert(); }
+    }
 </script>
 
 </body>

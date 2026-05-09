@@ -141,7 +141,7 @@ Textlängen, doppelte Leerzeichen, HTML-Tags und Platzhaltertext.
 ---
 
 <details>
-<summary><strong>Entwicklungsphasen 1–10</strong></summary>
+<summary><strong>Entwicklungsphasen 1–11</strong></summary>
 
 ## Phase 1 – Initiales Quiz-Projekt (8. Mai 2026)
 
@@ -419,6 +419,91 @@ Commit-Message aus dem Konversationsverlauf ab und pusht auf
 `out/` als Build-Artefakt ergänzt, damit das befüllte Publish-Verzeichnis
 nicht versehentlich ins Repository gelangt.
 
+---
+
+## Phase 11 – Online-Spiel-Modus (9. Mai 2026)
+
+Realisierung des geplanten Echtzeit-Mehrspieler-Modus. Neues GitHub-Projekt `quiz-server` mit Node.js-WebSocket-Server sowie vollständige Integration in `index.html`.
+
+### 11.1  quiz-server – Node.js + Socket.IO
+
+**Verzeichnis:** `C:\Daten\Projects\quiz-server`
+
+Neues Projekt mit `server.js`, `package.json`, `.gitignore`. Dependencies: `express ^4.19.2`, `socket.io ^4.7.5`. Deployment-Ziel: Render.com Free-Tier.
+
+**Socket.IO-Ereignisse (Client → Server):**
+
+| Event | Payload | Beschreibung |
+|---|---|---|
+| `raum_erstellen` | `{ modus, name }` | Host erstellt Raum, erhält 6-stelligen Code |
+| `raum_beitreten` | `{ code, name }` | Gast tritt bei |
+| `spiel_starten` | `{ fragen }` | Host sendet Fragen (max. 50), Spiel beginnt |
+| `antwort_senden` | `{ antwort_index }` | Antwort eines Spielers |
+
+**Socket.IO-Ereignisse (Server → Client):**
+
+| Event | Payload | Beschreibung |
+|---|---|---|
+| `raum_erstellt` | `{ code }` | Bestätigung Raumcode |
+| `raum_beigetreten` | `{ code, modus }` | Bestätigung Beitritt |
+| `spieler_liste` | Array | Live-Spielerliste bei jeder Änderung |
+| `frage` | `{ index, total, text, antworten, modus }` | Nächste Frage synchron an alle |
+| `countdown` | `{ sekunden }` | Sekundenweise Countdown (15 s pro Frage) |
+| `antwort_bestaetigt` | `{ korrekt, antwort_index }` | Antwort-Rückmeldung an Einzelspieler |
+| `aufloesung` | `{ richtig_index, scores }` | Richtige Antwort + Zwischenstand |
+| `spiel_ende` | `{ rangliste }` | Endrangliste, Raum wird gelöscht |
+| `raum_geschlossen` | `{ meldung }` | Host hat verlassen |
+| `fehler` | `{ meldung }` | Fehlermeldung |
+
+**Spielmechanik:**
+- Punkte: 1 000 Basispunkte + bis zu 500 Schnelligkeitsbonus (proportional zur Restzeit)
+- Timer: 15 s pro Frage, serverseitig getaktet
+- Auflösungspause: 3,5 s zwischen Fragen
+- Räume ausschließlich im Arbeitsspeicher (keine Datenbank, keine Nutzerkonten)
+- Rate-Limiting: max. 5 Räume/Min. pro IP
+- Max. 8 Spieler pro Raum
+- Inaktivitäts-Timeout: 30 Min.
+- CORS: nur `weberding.de` und `localhost`
+
+### 11.2  index.html – Online-Option und Overlay-UI
+
+**Datei:** `index.html`
+
+Dritte Quellenoption „Online" im Quelle-Dropdown. Beim Auswählen öffnet sich ein modales Overlay mit sechs Panels:
+
+| Panel-ID | Beschreibung |
+|---|---|
+| `op_start` | Wahl: Raum erstellen oder beitreten |
+| `op_host_erstellen` | Name eingeben, aktuelles Thema anzeigen, Raum erstellen |
+| `op_host_warten` | Raumcode (groß, cyan), Live-Spielerliste, „Spiel starten"-Button |
+| `op_gast_beitreten` | Code + Name eingeben, Beitreten-Button |
+| `op_gast_warten` | Warteraum mit Live-Spielerliste |
+| `op_rangliste` | Endrangliste mit Medaillen-Emojis 🥇🥈🥉 |
+
+**Neue HTML-Elemente in `index.html`:**
+- `timer_row` – farbiger Countdown-Balken unterhalb der Fortschrittsleiste (CSS-Transition)
+- `live_score_panel` – Zwischenstand nach jeder Frage (sortiert nach Punkten)
+- `online_overlay` – `position:fixed`, `backdrop-filter:blur`, außerhalb von `app_shell`
+
+**Neue JS-Funktionen:**
+- `online_verbinden()` – lädt Socket.IO 4.7.5 lazy vom CDN, stellt Verbindung her
+- `registriere_socket_events()` – alle Server-Event-Handler (einmalig pro Socket)
+- `op_host_erstellen()` – Verbindung + `raum_erstellen` senden
+- `op_gast_beitreten()` – Code validieren, Verbindung + `raum_beitreten` senden
+- `op_spiel_starten()` – Themendatei laden, Level/Anzahl-Filter anwenden, mischen, als Fragen-Array an Server senden
+- `starte_online_timer(n)` / `stoppe_online_timer()` – CSS-Transition-Timer (requestAnimationFrame)
+- `online_beenden()` / `online_beenden_still()` – Socket trennen, Overlays schließen, Quelle zurücksetzen
+- `online_zeige_fehler(text)` – Fehlermeldung im Overlay, automatisch nach 5 s ausgeblendet
+
+**Geänderte JS-Funktionen:**
+- `starte_quiz()` – Online-Modus öffnet Overlay statt Quiz zu starten
+- `quelle_geaendert()` – neuer `online`-Branch: Overlay öffnen, lokale Daten vorladen; `else`-Branch trennt Socket und schließt Overlays
+- `pruefe_user_antwort()` – bei Online-Quelle: `antwort_senden` an Server statt lokaler Auswertung
+
+**Server-URL (Konstante `ONLINE_SERVER_URL` in `index.html`):**
+- `localhost` / `127.0.0.1` → `http://localhost:3010`
+- Produktion → `https://quiz-server.onrender.com` *(nach Render-Deployment anpassen)*
+
 </details>
 
 ---
@@ -426,3 +511,12 @@ nicht versehentlich ins Repository gelangt.
 ## Sonstiges
 
 _Raum für aktuelle Anmerkungen – kann jederzeit überschrieben werden._
+
+### Nächste Schritte: Render-Deployment
+
+Online-Modus ist lokal vollständig getestet. Ausstehend:
+
+1. GitHub-Repo `chrisgitti/quiz-server` anlegen und `C:\Daten\Projects\quiz-server` pushen
+2. Render.com Web Service einrichten (Node.js, `npm start`, Port `$PORT`)
+3. `ONLINE_SERVER_URL` in `index.html` auf die zugewiesene Render-URL aktualisieren
+4. `/quiz publish` + GitHub-Push für das Quiz-Repo

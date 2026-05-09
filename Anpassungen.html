@@ -559,7 +559,7 @@ python -B scripts\quiz_tool.py all check --lint   # + Sprachlint</code></pre>
 
   <details class="group" open>
     <summary>
-      <span class="group-label">Phasen 1–10</span>
+      <span class="group-label">Phasen 1–11</span>
       <span class="line"></span>
     </summary>
 
@@ -845,6 +845,86 @@ python -B scripts\quiz_tool.py all check --lint   # + Sprachlint</code></pre>
       </div>
     </details>
 
+    <hr>
+
+    <!-- Phase 11 -->
+    <details class="phase">
+      <summary><span class="summary-text">Phase 11 – Online-Spiel-Modus <span class="date">(9. Mai 2026)</span></span></summary>
+      <div class="phase-body">
+        <p>Realisierung des geplanten Echtzeit-Mehrspieler-Modus. Neues GitHub-Projekt
+        <code>quiz-server</code> mit Node.js-WebSocket-Server sowie vollständige
+        Integration in <code>index.html</code>.</p>
+
+        <h3>11.1&nbsp;&nbsp;quiz-server – Node.js + Socket.IO</h3>
+        <p><strong>Verzeichnis:</strong> <code>C:\Daten\Projects\quiz-server</code></p>
+        <p>Neues Projekt mit <code>server.js</code>, <code>package.json</code>, <code>.gitignore</code>.
+        Dependencies: <code>express ^4.19.2</code>, <code>socket.io ^4.7.5</code>.
+        Deployment-Ziel: Render.com Free-Tier.</p>
+
+        <p><strong>Socket.IO-Ereignisse (Client → Server):</strong></p>
+        <table>
+          <tr><th>Event</th><th>Payload</th><th>Beschreibung</th></tr>
+          <tr><td><code>raum_erstellen</code></td><td><code>{ modus, name }</code></td><td>Host erstellt Raum, erhält 6-stelligen Code</td></tr>
+          <tr><td><code>raum_beitreten</code></td><td><code>{ code, name }</code></td><td>Gast tritt bei</td></tr>
+          <tr><td><code>spiel_starten</code></td><td><code>{ fragen }</code></td><td>Host sendet Fragen (max. 50), Spiel beginnt</td></tr>
+          <tr><td><code>antwort_senden</code></td><td><code>{ antwort_index }</code></td><td>Antwort eines Spielers</td></tr>
+        </table>
+
+        <p><strong>Socket.IO-Ereignisse (Server → Client):</strong></p>
+        <table>
+          <tr><th>Event</th><th>Payload</th><th>Beschreibung</th></tr>
+          <tr><td><code>raum_erstellt</code></td><td><code>{ code }</code></td><td>Bestätigung Raumcode</td></tr>
+          <tr><td><code>raum_beigetreten</code></td><td><code>{ code, modus }</code></td><td>Bestätigung Beitritt</td></tr>
+          <tr><td><code>spieler_liste</code></td><td>Array</td><td>Live-Spielerliste bei jeder Änderung</td></tr>
+          <tr><td><code>frage</code></td><td><code>{ index, total, text, antworten, modus }</code></td><td>Nächste Frage synchron an alle</td></tr>
+          <tr><td><code>countdown</code></td><td><code>{ sekunden }</code></td><td>Sekundenweise Countdown (15 s pro Frage)</td></tr>
+          <tr><td><code>antwort_bestaetigt</code></td><td><code>{ korrekt, antwort_index }</code></td><td>Antwort-Rückmeldung an Einzelspieler</td></tr>
+          <tr><td><code>aufloesung</code></td><td><code>{ richtig_index, scores }</code></td><td>Richtige Antwort + Zwischenstand</td></tr>
+          <tr><td><code>spiel_ende</code></td><td><code>{ rangliste }</code></td><td>Endrangliste, Raum wird gelöscht</td></tr>
+          <tr><td><code>raum_geschlossen</code></td><td><code>{ meldung }</code></td><td>Host hat verlassen</td></tr>
+          <tr><td><code>fehler</code></td><td><code>{ meldung }</code></td><td>Fehlermeldung</td></tr>
+        </table>
+
+        <p><strong>Spielmechanik:</strong></p>
+        <ul>
+          <li>Punkte: 1 000 Basispunkte + bis zu 500 Schnelligkeitsbonus (proportional zur Restzeit)</li>
+          <li>Timer: 15 s pro Frage, serverseitig getaktet</li>
+          <li>Auflösungspause: 3,5 s zwischen Fragen</li>
+          <li>Räume ausschließlich im Arbeitsspeicher (keine Datenbank, keine Nutzerkonten)</li>
+          <li>Rate-Limiting: max. 5 Räume/Min. pro IP; max. 8 Spieler pro Raum</li>
+          <li>Inaktivitäts-Timeout: 30 Min.; CORS: nur <code>weberding.de</code> und <code>localhost</code></li>
+        </ul>
+
+        <h3>11.2&nbsp;&nbsp;index.html – Online-Option und Overlay-UI</h3>
+        <p><strong>Datei:</strong> <code>index.html</code></p>
+        <p>Dritte Quellenoption „Online" im Quelle-Dropdown. Beim Auswählen öffnet sich
+        ein modales Overlay (<code>position:fixed</code>, <code>backdrop-filter:blur</code>)
+        mit sechs Panels:</p>
+        <table>
+          <tr><th>Panel-ID</th><th>Beschreibung</th></tr>
+          <tr><td><code>op_start</code></td><td>Wahl: Raum erstellen oder beitreten</td></tr>
+          <tr><td><code>op_host_erstellen</code></td><td>Name eingeben, aktuelles Thema anzeigen, Raum erstellen</td></tr>
+          <tr><td><code>op_host_warten</code></td><td>Raumcode (groß, cyan), Live-Spielerliste, „Spiel starten"-Button</td></tr>
+          <tr><td><code>op_gast_beitreten</code></td><td>Code + Name eingeben, Beitreten-Button</td></tr>
+          <tr><td><code>op_gast_warten</code></td><td>Warteraum mit Live-Spielerliste</td></tr>
+          <tr><td><code>op_rangliste</code></td><td>Endrangliste mit Medaillen-Emojis 🥇🥈🥉</td></tr>
+        </table>
+        <p><strong>Neue HTML-Elemente:</strong> <code>timer_row</code> (Countdown-Balken in
+        <code>hero_quiz</code>), <code>live_score_panel</code> (Zwischenstand nach jeder Frage),
+        <code>online_overlay</code> (modales Overlay).</p>
+        <p><strong>Neue JS-Funktionen:</strong> <code>online_verbinden()</code>,
+        <code>registriere_socket_events()</code>, <code>op_host_erstellen()</code>,
+        <code>op_gast_beitreten()</code>, <code>op_spiel_starten()</code>,
+        <code>starte_online_timer()</code>, <code>stoppe_online_timer()</code>,
+        <code>online_beenden()</code>, <code>online_zeige_fehler()</code>.</p>
+        <p><strong>Geänderte JS-Funktionen:</strong> <code>starte_quiz()</code>,
+        <code>quelle_geaendert()</code>, <code>pruefe_user_antwort()</code>.</p>
+        <p><strong>Server-URL</strong> (<code>ONLINE_SERVER_URL</code>):
+        <code>localhost</code> → <code>http://localhost:3010</code>;
+        Produktion → <code>https://quiz-server.onrender.com</code> (nach Deployment anpassen).</p>
+      </div>
+    </details>
+
   </details>
 
   <!-- Sonstiges -->
@@ -853,9 +933,15 @@ python -B scripts\quiz_tool.py all check --lint   # + Sprachlint</code></pre>
   <details class="phase" open>
     <summary><span class="summary-text">Aktuelle Anmerkungen</span></summary>
     <div class="phase-body">
-      <p style="color:rgba(255,255,255,0.35);font-style:italic">
-        Raum für aktuelle Anmerkungen – kann jederzeit überschrieben werden.
-      </p>
+      <h3>Nächste Schritte: Render-Deployment</h3>
+      <p>Online-Modus ist lokal vollständig getestet. Ausstehend:</p>
+      <ol>
+        <li>GitHub-Repo <code>chrisgitti/quiz-server</code> anlegen und
+            <code>C:\Daten\Projects\quiz-server</code> pushen</li>
+        <li>Render.com Web Service einrichten (Node.js, <code>npm start</code>, Port <code>$PORT</code>)</li>
+        <li><code>ONLINE_SERVER_URL</code> in <code>index.html</code> auf die zugewiesene Render-URL aktualisieren</li>
+        <li><code>/quiz publish</code> + GitHub-Push für das Quiz-Repo</li>
+      </ol>
     </div>
   </details>
 

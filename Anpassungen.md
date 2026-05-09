@@ -141,7 +141,7 @@ Textlängen, doppelte Leerzeichen, HTML-Tags und Platzhaltertext.
 ---
 
 <details>
-<summary><strong>Entwicklungsphasen 1–11</strong></summary>
+<summary><strong>Entwicklungsphasen 1–12</strong></summary>
 
 ## Phase 1 – Initiales Quiz-Projekt (8. Mai 2026)
 
@@ -503,6 +503,71 @@ Dritte Quellenoption „Online" im Quelle-Dropdown. Beim Auswählen öffnet sich
 **Server-URL (Konstante `ONLINE_SERVER_URL` in `index.html`):**
 - `localhost` / `127.0.0.1` → `http://localhost:3010`
 - Produktion → `https://quiz-server.onrender.com` *(nach Render-Deployment anpassen)*
+
+---
+
+## Phase 12 – Online-Spiel-Verbesserungen & Korrekturen (9. Mai 2026)
+
+Mehrere Verbesserungen am Online-Spielmodus (UI, Punkte-Transparenz, Neustart) sowie ein Bugfix beim Verlassen und Artikelkorrekturen im Duo-Katalog Auswahlverfahren.
+
+### 12.1  Per-Spieler Antwort-Highlighting
+
+**Datei:** `index.html`
+
+Nach dem Senden einer Antwort im Online-Modus wurde der gewählte Button nicht hervorgehoben. Der `antwort_bestaetigt`-Event vom Server enthält jetzt `antwort_index`; der Client markiert den geklickten Button mit `selected-right` (grün) bzw. `selected-wrong` (rot) – identisch zum lokalen Modus.
+
+### 12.2  Verlassen-Button während des Spiels
+
+**Datei:** `index.html`
+
+Unterhalb der Antwort-Buttons wurde ein neuer `online_verlassen_bar` mit „✕ Verlassen"-Button ergänzt. Er erscheint beim ersten `frage`-Event und ist für Host und Gast gleichermaßen sichtbar. Beim Klick trennt er den Socket, setzt die UI zurück und wechselt die Quelle auf „Lokal".
+
+### 12.3  Bugfix: Online-Modus nach Host-Verlassen feststeckend
+
+**Datei:** `index.html`
+
+Wenn der Host das Spiel verließ, wurde dem Gast zwar die Meldung „Raum geschlossen" angezeigt, aber `sel_quelle` blieb auf „online" – erneutes Anklicken von „Online" feuerte kein `onchange`-Event. Fix: `online_beenden_still()` setzt `sel_quelle` jetzt immer auf `'lokal'` zurück; `online_beenden()` ruft anschließend `quelle_geaendert()` auf.
+
+### 12.4  Punkte-Transparenz: Scoring sichtbar
+
+**Dateien:** `index.html`, `quiz-server/server.js`
+
+Der Server sendet jetzt `punkte` im `antwort_bestaetigt`-Event mit (z. B. `1347`). Der Client zeigt nach richtiger Antwort „Richtig! +1.347 Pkt." im Feedback-Bereich. Im Endergebnis-Panel steht ein Hinweis: „1.000 Basispunkte + bis zu 500 Schnelligkeitsbonus pro richtiger Antwort".
+
+### 12.5  Live-Punkteanzeige im Score-Pill
+
+**Datei:** `index.html`
+
+Das Score-Pill oben rechts wechselt beim Online-Spielstart das Label von „Richtig" auf „Punkte" und akkumuliert den eigenen Gesamtpunktestand live nach jeder Antwort. Bei Spielende oder Verlassen wird es auf „Richtig / 0" zurückgesetzt.
+
+### 12.6  Timer-Skala mit Bonus-Werten
+
+**Datei:** `index.html`
+
+Unterhalb des Countdown-Balkens wurde eine dreistufige Skala ergänzt: **1.000 Pkt.** (links, Zeit abgelaufen) – **1.250 Pkt.** (Mitte) – **1.500 Pkt.** (rechts, volle Zeit). Sie ist nur im Online-Modus sichtbar und erklärt den Schnelligkeitsbonus visuell.
+
+### 12.7  Neustart-Funktion nach Spielende
+
+**Dateien:** `index.html`, `quiz-server/server.js`
+
+Im Endergebnis-Panel erscheint neben „Beenden" ein neuer **„Nochmal"**-Button. Der Server löscht den Raum nach Spielende nicht mehr, sondern setzt ihn in den Wartezustand zurück (Scores genullt, Fragen geleert). Host kommt zum Warteraum mit gleichem Raumcode, Gast zum Wartebildschirm – dann startet der Host wie gewohnt neu.
+
+### 12.8  LPA-Artikel-Korrekturen in Duo-Katalog
+
+**Datei:** `td_auswahlverfahren.htm`
+
+„LPA" ist maskulin (der LPA). Sechs Stellen mit falschem Artikel wurden korrigiert:
+
+| Vorher | Nachher |
+|--------|---------|
+| „Das LPA erstellt …" | „Der LPA erstellt …" |
+| „Das LPA stellt … ein." | „Der LPA stellt … ein." |
+| „… entscheidet … das LPA." | „… entscheidet … der LPA." |
+| „Das LPA führt …" | „Der LPA führt …" |
+| „… über das LPA an." | „… über den LPA an." |
+| „Das LPA ist …" | „Der LPA ist …" |
+
+Komposita wie „das LPA-Auswahlverfahren" (Genus von „Auswahlverfahren" = sächlich) bleiben unverändert.
 
 </details>
 

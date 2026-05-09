@@ -559,7 +559,7 @@ python -B scripts\quiz_tool.py all check --lint   # + Sprachlint</code></pre>
 
   <details class="group" open>
     <summary>
-      <span class="group-label">Phasen 1–11</span>
+      <span class="group-label">Phasen 1–12</span>
       <span class="line"></span>
     </summary>
 
@@ -922,6 +922,58 @@ python -B scripts\quiz_tool.py all check --lint   # + Sprachlint</code></pre>
         <p><strong>Server-URL</strong> (<code>ONLINE_SERVER_URL</code>):
         <code>localhost</code> → <code>http://localhost:3010</code>;
         Produktion → <code>https://quiz-server.onrender.com</code> (nach Deployment anpassen).</p>
+      </div>
+    </details>
+
+    <hr>
+
+    <!-- Phase 12 -->
+    <details class="phase">
+      <summary><span class="summary-text">Phase 12 – Online-Spiel-Verbesserungen &amp; Korrekturen <span class="date">(9. Mai 2026)</span></span></summary>
+      <div class="phase-body">
+        <p>Mehrere Verbesserungen am Online-Spielmodus (UI, Punkte-Transparenz, Neustart) sowie ein Bugfix beim Verlassen und Artikelkorrekturen im Duo-Katalog Auswahlverfahren.</p>
+
+        <h3>12.1&nbsp;&nbsp;Per-Spieler Antwort-Highlighting</h3>
+        <p><strong>Datei:</strong> <code>index.html</code></p>
+        <p>Nach dem Senden einer Antwort im Online-Modus wurde der gewählte Button nicht hervorgehoben. Der <code>antwort_bestaetigt</code>-Event enthält jetzt <code>antwort_index</code>; der Client markiert den geklickten Button mit <code>selected-right</code> (grün) bzw. <code>selected-wrong</code> (rot) – identisch zum lokalen Modus.</p>
+
+        <h3>12.2&nbsp;&nbsp;Verlassen-Button während des Spiels</h3>
+        <p><strong>Datei:</strong> <code>index.html</code></p>
+        <p>Unterhalb der Antwort-Buttons wurde ein neuer <code>online_verlassen_bar</code> mit „✕ Verlassen"-Button ergänzt. Er erscheint beim ersten <code>frage</code>-Event und ist für Host und Gast gleichermaßen sichtbar.</p>
+
+        <h3>12.3&nbsp;&nbsp;Bugfix: Online-Modus nach Host-Verlassen feststeckend</h3>
+        <p><strong>Datei:</strong> <code>index.html</code></p>
+        <p>Wenn der Host das Spiel verließ, blieb <code>sel_quelle</code> auf „online" – erneutes Anklicken feuerte kein <code>onchange</code>-Event. Fix: <code>online_beenden_still()</code> setzt den Selektor jetzt immer auf <code>'lokal'</code> zurück.</p>
+
+        <h3>12.4&nbsp;&nbsp;Punkte-Transparenz: Scoring sichtbar</h3>
+        <p><strong>Dateien:</strong> <code>index.html</code>, <code>quiz-server/server.js</code></p>
+        <p>Der Server sendet <code>punkte</code> im <code>antwort_bestaetigt</code>-Event mit. Der Client zeigt nach richtiger Antwort z. B. „Richtig! +1.347 Pkt." im Feedback-Bereich. Im Endergebnis steht der Hinweis: „1.000 Basispunkte + bis zu 500 Schnelligkeitsbonus".</p>
+
+        <h3>12.5&nbsp;&nbsp;Live-Punkteanzeige im Score-Pill</h3>
+        <p><strong>Datei:</strong> <code>index.html</code></p>
+        <p>Das Score-Pill wechselt beim Spielstart das Label von „Richtig" auf „Punkte" und zeigt den eigenen akkumulierten Gesamtpunktestand live. Bei Spielende wird es zurückgesetzt.</p>
+
+        <h3>12.6&nbsp;&nbsp;Timer-Skala mit Bonus-Werten</h3>
+        <p><strong>Datei:</strong> <code>index.html</code></p>
+        <p>Unterhalb des Countdown-Balkens wurde eine dreistufige Skala ergänzt: <strong>1.000 Pkt.</strong> (links, Zeit abgelaufen) – <strong>1.250 Pkt.</strong> (Mitte) – <strong>1.500 Pkt.</strong> (rechts, volle Zeit). Nur im Online-Modus sichtbar.</p>
+
+        <h3>12.7&nbsp;&nbsp;Neustart-Funktion nach Spielende</h3>
+        <p><strong>Dateien:</strong> <code>index.html</code>, <code>quiz-server/server.js</code></p>
+        <p>Im Endergebnis-Panel erscheint neben „Beenden" ein <strong>„Nochmal"</strong>-Button. Der Server löscht den Raum nach Spielende nicht mehr, sondern setzt ihn in den Wartezustand zurück. Host und Gast kehren in ihre jeweiligen Warteräume zurück – gleicher Raumcode, Scores genullt.</p>
+
+        <h3>12.8&nbsp;&nbsp;LPA-Artikel-Korrekturen in Duo-Katalog</h3>
+        <p><strong>Datei:</strong> <code>td_auswahlverfahren.htm</code></p>
+        <p>„LPA" ist maskulin (der LPA). Sechs Stellen mit falschem Artikel wurden korrigiert:</p>
+        <table>
+          <tr><th>Vorher</th><th>Nachher</th></tr>
+          <tr><td>„Das LPA erstellt …"</td><td>„Der LPA erstellt …"</td></tr>
+          <tr><td>„Das LPA stellt … ein."</td><td>„Der LPA stellt … ein."</td></tr>
+          <tr><td>„… entscheidet … das LPA."</td><td>„… entscheidet … der LPA."</td></tr>
+          <tr><td>„Das LPA führt …"</td><td>„Der LPA führt …"</td></tr>
+          <tr><td>„… über das LPA an."</td><td>„… über den LPA an."</td></tr>
+          <tr><td>„Das LPA ist …"</td><td>„Der LPA ist …"</td></tr>
+        </table>
+        <p>Komposita wie „das LPA-Auswahlverfahren" (Genus von „Auswahlverfahren" = sächlich) bleiben unverändert.</p>
       </div>
     </details>
 

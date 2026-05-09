@@ -911,6 +911,7 @@
     <div class="online_panel" id="op_rangliste" style="display:none">
         <h2 class="op_title">Endergebnis</h2>
         <div class="op_rangliste" id="op_rangliste_inhalt"></div>
+        <p style="color:var(--muted);font-size:0.75rem;text-align:center;margin-top:4px">Punkte: 1.000 Basis + bis zu 500 Schnelligkeitsbonus pro richtiger Antwort</p>
         <button class="op_btn op_btn_primary" onclick="online_beenden()">Beenden</button>
     </div>
 </div>
@@ -1561,9 +1562,12 @@
             const fill = document.getElementById('timer_fill');
             if (fill) { fill.style.transition = 'width 1s linear'; fill.style.width = `${(sekunden / 15) * 100}%`; }
         });
-        socket_online.on('antwort_bestaetigt', ({ korrekt, antwort_index }) => {
+        socket_online.on('antwort_bestaetigt', ({ korrekt, antwort_index, punkte }) => {
             setze_button_status(true);
-            setze_status(korrekt ? 'Richtig!' : 'Falsch!', korrekt ? 'right' : 'wrong', korrekt ? '✓' : '×');
+            const status_text = korrekt
+                ? `Richtig! +${punkte.toLocaleString('de-DE')} Pkt.`
+                : 'Falsch!';
+            setze_status(status_text, korrekt ? 'right' : 'wrong', korrekt ? '✓' : '×');
             setze_stage_status(korrekt ? 'is-right' : 'is-wrong');
             const aktiver_button = document.getElementById(`btn_answer_${antwort_index}`);
             if (aktiver_button) {
@@ -1711,12 +1715,12 @@
         document.getElementById('live_score_panel').style.display = 'none';
         document.getElementById('timer_row').style.display = 'none';
         document.getElementById('online_verlassen_bar').style.display = 'none';
+        document.getElementById('sel_quelle').value = 'lokal';
     }
 
     function online_beenden() {
         online_beenden_still();
-        const sel = document.getElementById('sel_quelle');
-        if (sel.value === 'online') { sel.value = 'lokal'; quelle_geaendert(); }
+        quelle_geaendert();
     }
 </script>
 

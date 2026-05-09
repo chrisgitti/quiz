@@ -917,7 +917,10 @@
         <h2 class="op_title">Endergebnis</h2>
         <div class="op_rangliste" id="op_rangliste_inhalt"></div>
         <p style="color:var(--muted);font-size:0.75rem;text-align:center;margin-top:4px">Punkte: 1.000 Basis + bis zu 500 Schnelligkeitsbonus pro richtiger Antwort</p>
-        <button class="op_btn op_btn_primary" onclick="online_beenden()">Beenden</button>
+        <div class="op_btn_group">
+            <button class="op_btn op_btn_secondary" onclick="op_neustart()">Nochmal</button>
+            <button class="op_btn op_btn_primary" onclick="online_beenden()">Beenden</button>
+        </div>
     </div>
 </div>
 
@@ -1723,6 +1726,13 @@
         el.style.display = '';
         clearTimeout(el._t);
         el._t = setTimeout(() => { el.style.display = 'none'; }, 5000);
+    }
+
+    function op_neustart() {
+        online_eigene_punkte = 0;
+        document.getElementById('score_wert').textContent = '0';
+        document.getElementById('online_overlay').style.display = 'flex';
+        op_zeige(online_ist_host ? 'op_host_warten' : 'op_gast_warten');
     }
 
     function online_beenden_still() {

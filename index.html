@@ -312,10 +312,6 @@
             background: var(--panel);
             border: 2px solid var(--line);
             color: var(--ink);
-            justify-content: flex-start;
-            padding-inline: 18px;
-            font-size: clamp(0.85rem, 2vw, 1.05rem);
-            font-weight: 700;
         }
 
         .btn_false {
@@ -328,20 +324,16 @@
 
         .answer_text {
             min-width: 0;
-            flex: 1;
-            text-align: left;
             overflow-wrap: anywhere;
         }
 
         .answer_icon {
             width: 42px;
             height: 42px;
-            flex-shrink: 0;
             border-radius: 50%;
             background: rgba(255, 255, 255, 0.2);
             display: grid;
             place-items: center;
-            font-size: 1.15rem;
             line-height: 1;
         }
 
@@ -443,7 +435,7 @@
             backdrop-filter: blur(16px);
             padding: 9px;
             display: grid;
-            grid-template-columns: minmax(160px, 1.6fr) repeat(3, minmax(110px, 1fr)) auto;
+            grid-template-columns: repeat(2, minmax(90px, 1fr)) minmax(130px, 1.5fr) repeat(2, minmax(90px, 1fr)) auto;
             gap: 8px;
             align-items: end;
             box-shadow: 0 14px 34px rgba(0, 0, 0, 0.18);
@@ -657,16 +649,29 @@
 
     <section class="control_dock" id="control_dock">
         <label class="field">
+            <span class="label">Quelle</span>
+            <select id="sel_quelle" onchange="quelle_geaendert()">
+                <option value="lokal">Lokal</option>
+                <option value="otdb">Open Trivia DB</option>
+            </select>
+        </label>
+        <label class="field">
             <span class="label">Modus</span>
             <select id="sel_modus" onchange="modus_geaendert()">
                 <option value="duo">Duo</option>
                 <option value="quattro">Quattro</option>
             </select>
         </label>
-        <label class="field">
+        <label class="field" id="feld_thema">
             <span class="label">Thema</span>
             <select id="sel_thema" onchange="auswahl_geaendert()">
                 <option value="">Themen werden geladen...</option>
+            </select>
+        </label>
+        <label class="field" id="feld_kategorie" style="display:none">
+            <span class="label">Kategorie</span>
+            <select id="sel_kategorie">
+                <option value="">Alle Kategorien</option>
             </select>
         </label>
         <label class="field">
@@ -755,6 +760,7 @@
     let wurde_bereits_gestartet = false;
     let aktueller_titel = "Quiz";
     let aktueller_modus = "duo";
+    let otdb_token = null;
 
     const sound_richtig = new Audio('media/freesound_community-correct-6033.mp3');
     const sound_falsch = new Audio('wrong.mp3');
@@ -858,9 +864,19 @@
         aktueller_modus = document.getElementById('sel_modus').value;
         wurde_bereits_gestartet = false;
         document.getElementById('btn_start').innerText = 'Starten';
-        await initialisiere_themen_auswahl();
-        konfiguriere_antwort_buttons();
-        auswahl_geaendert();
+        const quelle = document.getElementById('sel_quelle').value;
+        if (quelle === 'lokal') {
+            await initialisiere_themen_auswahl();
+            konfiguriere_antwort_buttons();
+            auswahl_geaendert();
+        } else {
+            pool_alle = []; pool_aktiv = []; index_aktuell = 0; score = 0;
+            konfiguriere_antwort_buttons();
+            setze_button_status(true); entferne_rahmen(); setze_stage_status();
+            aktualisiere_kopf('Frage 0 / 0', 'Richtig: 0', 0);
+            setze_frage_text('Bereit?', 'Bereit');
+            setze_status('Modus geändert.');
+        }
     }
 
     function setze_status(text, typ = 'info', mark = 'i') {
@@ -947,7 +963,9 @@
     function starte_quiz() {
         wurde_bereits_gestartet = true;
         document.getElementById('btn_start').innerText = 'Neu starten';
-        lade_quiz_daten(true);
+        const quelle = document.getElementById('sel_quelle').value;
+        if (quelle === 'otdb') lade_otdb_fragen();
+        else lade_quiz_daten(true);
     }
 
     function mische_fragen_zufaellig(liste) {
@@ -966,6 +984,7 @@
     }
 
     function aktualisiere_vorschau() {
+        if (document.getElementById('sel_quelle').value === 'otdb') return;
         const info = ermittle_gefilterte_fragen();
         pool_aktiv = []; index_aktuell = 0; score = 0;
         setze_button_status(true); entferne_rahmen(); setze_stage_status(); konfiguriere_antwort_buttons();
@@ -1058,7 +1077,8 @@
     function verarbeite_audio_feedback(text, typ) {
         return new Promise((resolve) => {
             const wahl = document.getElementById('sel_audio').value;
-            if (typ === 'frage') { if (wahl === 'sprache' || wahl === 'beides') sprich(text); resolve(); return; }
+            const lang = (typ === 'frage' && document.getElementById('sel_quelle').value === 'otdb') ? 'en-US' : 'de-DE';
+            if (typ === 'frage') { if (wahl === 'sprache' || wahl === 'beides') sprich(text, null, lang); resolve(); return; }
             if (wahl === 'ohne') { resolve(); return; }
             if (wahl === 'ton' || wahl === 'beides') {
                 const audio_obj = (typ === 'correct') ? sound_richtig : sound_falsch;
@@ -1071,12 +1091,164 @@
         });
     }
 
-    function sprich(text, callback) {
+    function sprich(text, callback, lang = 'de-DE') {
         window.speechSynthesis.cancel();
         const s = new SpeechSynthesisUtterance(text);
-        s.lang = 'de-DE';
+        s.lang = lang;
         if (callback) s.onend = callback;
         window.speechSynthesis.speak(s);
+    }
+
+    function htmlDecode(str) {
+        return new DOMParser().parseFromString(str, 'text/html').documentElement.textContent;
+    }
+
+    function shuffle(arr) {
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+    }
+
+    async function quelle_geaendert() {
+        const quelle = document.getElementById('sel_quelle').value;
+        const feld_thema = document.getElementById('feld_thema');
+        const feld_kategorie = document.getElementById('feld_kategorie');
+        wurde_bereits_gestartet = false;
+        document.getElementById('btn_start').innerText = 'Starten';
+        pool_alle = []; pool_aktiv = []; index_aktuell = 0; score = 0;
+        setze_button_status(true); entferne_rahmen(); setze_stage_status();
+        aktualisiere_kopf('Frage 0 / 0', 'Richtig: 0', 0);
+        if (quelle === 'otdb') {
+            feld_thema.style.display = 'none';
+            feld_kategorie.style.display = '';
+            setze_frage_text('Bereit?', 'Bereit');
+            setze_status('Open Trivia DB – Starten zum Laden der Fragen.');
+            lade_otdb_kategorien();
+        } else {
+            feld_thema.style.display = '';
+            feld_kategorie.style.display = 'none';
+            setze_frage_text('Lade Fragen...', 'Laden');
+            setze_status('Bitte kurz warten.');
+            lade_quiz_daten(false);
+        }
+    }
+
+    async function otdb_token_holen() {
+        const gecacht = sessionStorage.getItem('otdb_token');
+        if (gecacht) { otdb_token = gecacht; return gecacht; }
+        try {
+            const res = await fetch('https://opentdb.com/api_token.php?command=request');
+            const data = await res.json();
+            if (data.token) { otdb_token = data.token; sessionStorage.setItem('otdb_token', data.token); }
+        } catch (e) {}
+        return otdb_token;
+    }
+
+    async function lade_otdb_kategorien() {
+        const sel = document.getElementById('sel_kategorie');
+        if (sel.options.length > 1) return;
+        try {
+            const res = await fetch('https://opentdb.com/api_category.php');
+            const data = await res.json();
+            data.trivia_categories.forEach(kat => {
+                const opt = document.createElement('option');
+                opt.value = kat.id;
+                opt.textContent = kat.name;
+                sel.appendChild(opt);
+            });
+        } catch (e) {}
+    }
+
+    async function lade_otdb_fragen() {
+        const modus = aktueller_modus;
+        const type = modus === 'duo' ? 'boolean' : 'multiple';
+        const grad = document.getElementById('sel_grad').value;
+        const schwierigkeit_map = { leicht: 'easy', mittel: 'medium', schwer: 'hard' };
+        const difficulty = grad === 'ohne' ? '' : (schwierigkeit_map[grad] || '');
+        const anzahl = Math.min(parseInt(document.getElementById('sel_anzahl').value, 10), 50);
+        const kategorie_id = document.getElementById('sel_kategorie').value;
+
+        setze_frage_text('Lade Fragen...', 'Laden');
+        setze_status('Verbindung zu Open Trivia DB...');
+        setze_button_status(true);
+
+        await otdb_token_holen();
+
+        const bau_url = () => {
+            let u = `https://opentdb.com/api.php?amount=${anzahl}&type=${type}`;
+            if (kategorie_id) u += `&category=${kategorie_id}`;
+            if (difficulty) u += `&difficulty=${difficulty}`;
+            if (otdb_token) u += `&token=${otdb_token}`;
+            return u;
+        };
+
+        try {
+            let res = await fetch(bau_url());
+            let data = await res.json();
+
+            if (data.response_code === 4) {
+                sessionStorage.removeItem('otdb_token');
+                otdb_token = null;
+                await otdb_token_holen();
+                res = await fetch(bau_url());
+                data = await res.json();
+            }
+
+            verarbeite_otdb_antwort(data, modus);
+        } catch (e) {
+            setze_frage_text('Keine Verbindung.', 'Fehler');
+            setze_status('Open Trivia DB nicht erreichbar – Internetverbindung prüfen.', 'wrong', '!');
+            aktualisiere_kopf('Frage 0 / 0', 'Richtig: 0', 0);
+            setze_button_status(true);
+        }
+    }
+
+    function verarbeite_otdb_antwort(data, modus) {
+        const grad_map = { easy: 'leicht', medium: 'mittel', hard: 'schwer' };
+
+        if (data.response_code === 1) {
+            setze_frage_text('Nicht genug Fragen.', 'Hinweis');
+            setze_status('Nicht genug Fragen für diese Auswahl – bitte Filter anpassen.', 'wrong', '!');
+            aktualisiere_kopf('Frage 0 / 0', 'Richtig: 0', 0);
+            setze_button_status(true);
+            return;
+        }
+
+        if (data.response_code !== 0 || !data.results?.length) {
+            setze_frage_text('Fehler bei OTDB.', 'Fehler');
+            setze_status(`Fehler von Open Trivia DB (Code ${data.response_code}).`, 'wrong', '!');
+            aktualisiere_kopf('Frage 0 / 0', 'Richtig: 0', 0);
+            setze_button_status(true);
+            return;
+        }
+
+        if (modus === 'duo') {
+            pool_alle = data.results.map(q => ({
+                aussage: htmlDecode(q.question),
+                antwort: q.correct_answer === 'True',
+                grad: grad_map[q.difficulty] || 'mittel'
+            }));
+        } else {
+            pool_alle = data.results.map(q => {
+                const richtig_text = htmlDecode(q.correct_answer);
+                const alle = shuffle([richtig_text, ...q.incorrect_answers.map(htmlDecode)]);
+                return {
+                    frage: htmlDecode(q.question),
+                    antworten: alle,
+                    richtig: alle.indexOf(richtig_text),
+                    grad: grad_map[q.difficulty] || 'mittel'
+                };
+            });
+        }
+
+        aktueller_titel = 'Open Trivia DB';
+        document.getElementById('anzeige_titel').innerText = `OTDB-Quiz · ${modus === 'duo' ? 'Duo' : 'Quattro'}`;
+        score = 0;
+        pool_aktiv = pool_alle;
+        index_aktuell = 0;
+        gebe_frage_aus();
     }
 
     window.onload = async function() {

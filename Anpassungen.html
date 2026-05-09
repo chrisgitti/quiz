@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quiz – Anpassungen</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #07090f;
+      color: rgba(255,255,255,0.80);
+      line-height: 1.75;
+      font-size: 0.95rem;
+      padding: 2rem 1rem 5rem;
+    }
+
+    .wrap { max-width: 880px; margin: 0 auto; }
+
+    /* ── Header ── */
+    .page-header {
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      padding-bottom: 2rem;
+      margin-bottom: 2.5rem;
+      position: relative;
+    }
+
+    .page-header::before {
+      content: '';
+      position: absolute;
+      inset: -2rem -1rem 0;
+      background:
+        radial-gradient(circle at 10% 50%, rgba(52,214,210,0.12), transparent 50%),
+        radial-gradient(circle at 90% 50%, rgba(255,209,102,0.08), transparent 50%);
+      pointer-events: none;
+    }
+
+    .page-header .label {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: #34d6d2;
+      margin-bottom: 0.5rem;
+    }
+
+    h1 {
+      font-size: clamp(1.7rem, 5vw, 2.6rem);
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: -0.01em;
+      color: #fff;
+      line-height: 1.1;
+      margin-bottom: 0.6rem;
+    }
+
+    h1 span { color: #34d6d2; }
+
+    .page-subtitle {
+      color: rgba(255,255,255,0.45);
+      font-size: 0.88rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .meta-table {
+      border-collapse: collapse;
+      font-size: 0.8rem;
+      margin-top: 0.5rem;
+    }
+
+    .meta-table td {
+      padding: 0.25rem 1rem 0.25rem 0;
+      color: rgba(255,255,255,0.55);
+      vertical-align: top;
+    }
+
+    .meta-table td:first-child {
+      color: rgba(255,255,255,0.30);
+      white-space: nowrap;
+      padding-right: 1.5rem;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    /* ── Section Headings (static) ── */
+    .section-title {
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: #d4a043;
+      margin: 2.5rem 0 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .section-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: rgba(255,255,255,0.06);
+    }
+
+    /* ── Info-Cards (static sections) ── */
+    .card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 0.6rem;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .card-title {
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: rgba(255,255,255,0.90);
+      margin-bottom: 0.75rem;
+    }
+
+    /* ── Modi-Badges ── */
+    .badge {
+      display: inline-block;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 0.2em 0.6em;
+      border-radius: 0.3rem;
+    }
+
+    .badge-cyan  { background: rgba(52,214,210,0.15); color: #34d6d2; }
+    .badge-amber { background: rgba(255,209,102,0.15); color: #ffd166; }
+    .badge-gold  { background: rgba(212,160,67,0.15);  color: #d4a043; }
+    .badge-green { background: rgba(31,223,130,0.15);  color: #1fdf82; }
+
+    /* ── Command-Tabelle ── */
+    .cmd-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+      margin: 0.5rem 0 0.75rem;
+    }
+
+    .cmd-table td {
+      padding: 0.4rem 0.75rem;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      vertical-align: top;
+      color: rgba(255,255,255,0.65);
+    }
+
+    .cmd-table tr:last-child td { border-bottom: none; }
+
+    .cmd-table td:first-child {
+      white-space: nowrap;
+      font-family: 'Consolas', 'Menlo', monospace;
+      font-size: 0.78rem;
+      color: #34d6d2;
+      padding-right: 1.25rem;
+    }
+
+    /* ── Allgemeine Tabellen ── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.83rem;
+      margin: 0.75rem 0 1rem;
+    }
+
+    th {
+      text-align: left;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.35);
+      padding: 0.5rem 0.75rem;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    td {
+      padding: 0.45rem 0.75rem;
+      color: rgba(255,255,255,0.68);
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      vertical-align: top;
+    }
+
+    tr:last-child td { border-bottom: none; }
+
+    /* ── Code ── */
+    code {
+      font-family: 'Consolas', 'Menlo', monospace;
+      font-size: 0.82em;
+      background: rgba(255,255,255,0.07);
+      color: #d4a043;
+      padding: 0.1em 0.4em;
+      border-radius: 0.25rem;
+    }
+
+    pre {
+      background: rgba(0,0,0,0.40);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-left: 3px solid rgba(52,214,210,0.5);
+      border-radius: 0 0.5rem 0.5rem 0;
+      padding: 1rem 1.25rem;
+      overflow-x: auto;
+      margin: 0.75rem 0 1rem;
+      font-size: 0.81rem;
+      line-height: 1.6;
+    }
+
+    pre code {
+      background: none;
+      color: rgba(255,255,255,0.80);
+      padding: 0;
+      font-size: 1em;
+    }
+
+    /* ── Phasen (aufklappbar) ── */
+    details.phase {
+      margin-bottom: 0.5rem;
+    }
+
+    details.phase > summary {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      list-style: none;
+      font-size: 1.0rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: #d4a043;
+      padding: 0.65rem 1rem;
+      background: rgba(212,160,67,0.07);
+      border-left: 3px solid #d4a043;
+      border-radius: 0 0.5rem 0.5rem 0;
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.15s;
+    }
+
+    details.phase > summary::-webkit-details-marker { display: none; }
+    details.phase > summary::marker { content: ''; }
+    details.phase > summary .summary-text { flex: 1; }
+
+    details.phase > summary::after {
+      content: '▸';
+      font-size: 0.78rem;
+      opacity: 0.60;
+      flex-shrink: 0;
+      margin-left: auto;
+    }
+
+    details.phase[open] > summary::after { content: '▾'; }
+    details.phase > summary:hover { background: rgba(212,160,67,0.13); }
+
+    /* Gruppenheader */
+    details.group > summary {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      list-style: none;
+      cursor: pointer;
+      user-select: none;
+      margin-bottom: 1rem;
+    }
+
+    details.group > summary::-webkit-details-marker { display: none; }
+    details.group > summary::marker { content: ''; }
+
+    .group-label {
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: #d4a043;
+    }
+
+    details.group > summary::after {
+      content: '▸';
+      font-size: 0.70rem;
+      color: #d4a043;
+      opacity: 0.70;
+    }
+
+    details.group[open] > summary::after { content: '▾'; }
+
+    details.group > summary::before {
+      content: '';
+      flex: 0 0 1px;
+      height: 1px;
+      width: 0;
+    }
+
+    /* Linie hinter Gruppenheader */
+    details.group > summary .line {
+      flex: 1;
+      height: 1px;
+      background: rgba(255,255,255,0.06);
+      margin-left: 0.5rem;
+    }
+
+    .phase-body {
+      padding: 1.5rem 0 0.75rem;
+    }
+
+    h3 {
+      font-size: 0.82rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: rgba(255,255,255,0.88);
+      margin: 1.75rem 0 0.6rem;
+      padding-bottom: 0.3rem;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .phase-body h3:first-child { margin-top: 0; }
+
+    p {
+      margin-bottom: 0.75rem;
+      color: rgba(255,255,255,0.68);
+    }
+
+    strong { color: rgba(255,255,255,0.90); font-weight: 600; }
+
+    ul {
+      list-style: none;
+      margin: 0.4rem 0 0.75rem;
+      padding: 0;
+    }
+
+    ul li {
+      padding: 0.18rem 0 0.18rem 1.25rem;
+      color: rgba(255,255,255,0.68);
+      position: relative;
+    }
+
+    ul li::before {
+      content: '–';
+      position: absolute;
+      left: 0;
+      color: #d4a043;
+    }
+
+    .date {
+      font-size: 0.70em;
+      font-weight: 500;
+      text-transform: none;
+      letter-spacing: 0;
+      opacity: 0.75;
+    }
+
+    hr {
+      border: none;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      margin: 1rem 0;
+    }
+
+    blockquote {
+      border-left: 3px solid rgba(52,214,210,0.4);
+      background: rgba(52,214,210,0.04);
+      padding: 0.75rem 1rem;
+      border-radius: 0 0.5rem 0.5rem 0;
+      margin: 0.75rem 0 1rem;
+      font-size: 0.875rem;
+      color: rgba(255,255,255,0.55);
+    }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: #07090f; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 3px; }
+  </style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- Header -->
+  <header class="page-header">
+    <div class="label">Dokumentation &amp; Entwicklungsprotokoll</div>
+    <h1>Quiz <span>App</span></h1>
+    <p class="page-subtitle">Anpassungen, Architektur und Entwicklungsphasen</p>
+    <table class="meta-table">
+      <tr><td>Projekt</td><td><code>C:\Daten\Projects\quiz</code></td></tr>
+      <tr><td>Lokal</td><td><code>http://localhost:4174/</code></td></tr>
+      <tr><td>Online</td><td><code>https://weberding.de/quiz/</code></td></tr>
+      <tr><td>Publish</td><td><code>.\publish-to-weberding.ps1</code></td></tr>
+    </table>
+  </header>
+
+  <!-- App-Beschreibung -->
+  <div class="section-title">App-Beschreibung</div>
+
+  <div class="card">
+    <div class="card-title">Übersicht</div>
+    <p>
+      Eigenständige, rein statische Web-Anwendung ohne externe Abhängigkeiten.
+      Kein Build-Schritt, kein Framework – läuft direkt im Browser aus dem lokalen
+      Dateisystem oder über einen einfachen HTTP-Server.
+    </p>
+    <table>
+      <tr><th>Eigenschaft</th><th>Wert</th></tr>
+      <tr><td>Einstiegspunkt</td><td><code>index.html</code></td></tr>
+      <tr><td>Lokaler Server</td><td><code>python -m http.server 4174</code></td></tr>
+      <tr><td>Technologie</td><td>HTML · CSS · JavaScript (vanilla)</td></tr>
+      <tr><td>Veröffentlichung</td><td><code>.\publish-to-weberding.ps1</code> → <code>weberding\quiz</code></td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Modi</div>
+    <p>
+      <span class="badge badge-cyan">Duo</span>&ensp;
+      Richtig/Falsch-Modus. Eine Aussage wird angezeigt, der Spieler entscheidet
+      „Richtig" oder „Falsch". Themendateien: <code>td_[thema].htm</code>.
+    </p>
+    <p>
+      <span class="badge badge-amber">Quattro</span>&ensp;
+      Multiple-Choice-Modus. Eine Frage mit vier Antwortmöglichkeiten A–D,
+      nur eine korrekt. Themendateien: <code>tq_[thema].htm</code>.
+    </p>
+  </div>
+
+  <!-- Skills -->
+  <div class="section-title">Quiz-Skills</div>
+
+  <div class="card">
+    <div class="card-title">
+      <span class="badge badge-cyan">Claude Code</span>&ensp; /quiz
+      &ensp;<span style="color:rgba(255,255,255,0.30);font-weight:400;text-transform:none;letter-spacing:0">→ <code>SKILL.md</code></span>
+    </div>
+    <table class="cmd-table">
+      <tr><td>/quiz duo [thema] create</td><td>100 Richtig/Falsch-Fragen erstellen</td></tr>
+      <tr><td>/quiz quattro [thema] create</td><td>100 Multiple-Choice-Fragen erstellen</td></tr>
+      <tr><td>/quiz [duo|quattro] [thema] check</td><td>Strukturelle Validierung</td></tr>
+      <tr><td>/quiz [duo|quattro] [thema] check count:nnn</td><td>Validierung mit Mindestanzahl</td></tr>
+      <tr><td>/quiz all check</td><td>Alle Kataloge prüfen</td></tr>
+      <tr><td>/quiz [duo|quattro] [thema] check-lang</td><td>Sprachprüfung (Rechtschreibung, Grammatik, Interpunktion)</td></tr>
+      <tr><td>/quiz all check-lang</td><td>Alle Kataloge sprachlich prüfen</td></tr>
+      <tr><td>/quiz publish</td><td>App nach weberding\quiz synchronisieren</td></tr>
+      <tr><td>/quiz ?</td><td>Hilfe anzeigen</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-title">
+      <span class="badge badge-green">ChatGPT Codex</span>&ensp; $quiz
+      &ensp;<span style="color:rgba(255,255,255,0.30);font-weight:400;text-transform:none;letter-spacing:0">→ <code>agents/openai.yaml</code></span>
+    </div>
+    <p>Identische Funktionen unter dem Präfix <code>$quiz</code>. Fallback-Lösung,
+    wenn das Claude-Token-Kontingent überschritten ist.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">
+      <span class="badge badge-gold">Claude Code</span>&ensp; /quiz-anpassungen
+      &ensp;<span style="color:rgba(255,255,255,0.30);font-weight:400;text-transform:none;letter-spacing:0">→ <code>.claude/skills/quiz-anpassungen/SKILL.md</code></span>
+    </div>
+    <p>Pflegt diese Dokumentation: fügt neue Entwicklungsphasen chronologisch ein
+    und hält <code>Anpassungen.md</code> und <code>Anpassungen.html</code> synchron.</p>
+  </div>
+
+  <!-- Themendateien -->
+  <div class="section-title">Themendateien</div>
+
+  <div class="card">
+    <div class="card-title">Struktur</div>
+    <p>
+      Alle Themendateien sind vollständige HTML-Seiten mit einem eingebetteten
+      <code>&lt;div id="question_data"&gt;</code>-Block als JSON-Array.
+      Die <code>index.html</code> lädt die gewählte Themendatei per <code>fetch()</code>
+      und parst den Block.
+    </p>
+    <table>
+      <tr><th>Datei</th><th>Modus</th><th>Thema</th></tr>
+      <tr><td><code>td_auswahlverfahren.htm</code></td><td><span class="badge badge-cyan">Duo</span></td><td>Beamten-Auswahlverfahren (LPA Bayern)</td></tr>
+      <tr><td><code>td_bayern.htm</code></td><td><span class="badge badge-cyan">Duo</span></td><td>Bayern allgemein</td></tr>
+      <tr><td><code>td_deutsch.htm</code></td><td><span class="badge badge-cyan">Duo</span></td><td>Deutsche Sprache</td></tr>
+      <tr><td><code>td_geschichte.htm</code></td><td><span class="badge badge-cyan">Duo</span></td><td>Deutsche Geschichte</td></tr>
+      <tr><td><code>td_pflanzen.htm</code></td><td><span class="badge badge-cyan">Duo</span></td><td>Pflanzen</td></tr>
+      <tr><td><code>td_poolbillardregeln.htm</code></td><td><span class="badge badge-cyan">Duo</span></td><td>Pool-Billard-Regeln</td></tr>
+      <tr><td><code>td_society.htm</code></td><td><span class="badge badge-cyan">Duo</span></td><td>Gesellschaft &amp; Kultur</td></tr>
+      <tr><td><code>td_tiere.htm</code></td><td><span class="badge badge-cyan">Duo</span></td><td>Tiere</td></tr>
+      <tr><td><code>tq_auswahlverfahren.htm</code></td><td><span class="badge badge-amber">Quattro</span></td><td>Beamten-Auswahlverfahren (LPA Bayern)</td></tr>
+      <tr><td><code>tq_poolbillardregeln.htm</code></td><td><span class="badge badge-amber">Quattro</span></td><td>Pool-Billard-Regeln</td></tr>
+    </table>
+  </div>
+
+  <details class="phase">
+    <summary><span class="summary-text">Duo-Format&ensp;<code>td_[thema].htm</code></span></summary>
+    <div class="phase-body">
+      <pre><code>&lt;div id="question_data"&gt;
+[
+  {
+    "aussage": "Eine klare, faktisch prüfbare Aussage.",
+    "antwort": true,
+    "grad": "leicht"
+  }
+]
+&lt;/div&gt;</code></pre>
+      <table>
+        <tr><th>Feld</th><th>Typ</th><th>Beschreibung</th></tr>
+        <tr><td><code>aussage</code></td><td>String</td><td>Aussagesatz, endet mit <code>.</code> oder <code>!</code></td></tr>
+        <tr><td><code>antwort</code></td><td>Boolean</td><td><code>true</code> = korrekt, <code>false</code> = falsch</td></tr>
+        <tr><td><code>grad</code></td><td>String</td><td><code>"leicht"</code>, <code>"mittel"</code> oder <code>"schwer"</code></td></tr>
+      </table>
+    </div>
+  </details>
+
+  <details class="phase">
+    <summary><span class="summary-text">Quattro-Format&ensp;<code>tq_[thema].htm</code></span></summary>
+    <div class="phase-body">
+      <pre><code>&lt;div id="question_data"&gt;
+[
+  {
+    "frage": "Welche Antwort ist richtig?",
+    "antworten": ["Antwort A", "Antwort B", "Antwort C", "Antwort D"],
+    "richtig": 0,
+    "grad": "leicht"
+  }
+]
+&lt;/div&gt;</code></pre>
+      <table>
+        <tr><th>Feld</th><th>Typ</th><th>Beschreibung</th></tr>
+        <tr><td><code>frage</code></td><td>String</td><td>Fragesatz, endet mit <code>?</code></td></tr>
+        <tr><td><code>antworten</code></td><td>Array[4]</td><td>Genau vier eindeutige, nichtleere Optionen</td></tr>
+        <tr><td><code>richtig</code></td><td>Integer</td><td>Index 0–3 der korrekten Antwort</td></tr>
+        <tr><td><code>grad</code></td><td>String</td><td><code>"leicht"</code>, <code>"mittel"</code> oder <code>"schwer"</code></td></tr>
+      </table>
+    </div>
+  </details>
+
+  <details class="phase">
+    <summary><span class="summary-text">Validierung via <code>quiz_tool.py</code></span></summary>
+    <div class="phase-body">
+      <pre><code>python -B scripts\quiz_tool.py all check          # strukturell
+python -B scripts\quiz_tool.py all check --lint   # + Sprachlint</code></pre>
+      <p>Der Sprachlint (<code>--lint</code>) prüft zusätzlich:</p>
+      <ul>
+        <li>Großschreibung am Satzanfang</li>
+        <li>Duo: Aussagen enden mit <code>.</code> oder <code>!</code>, nicht mit <code>?</code></li>
+        <li>Quattro: Fragen enden mit <code>?</code></li>
+        <li>Keine doppelten Leerzeichen</li>
+        <li>Keine HTML-Tags im Fragetext</li>
+        <li>Kein Platzhaltertext (<code>[...]</code>, <code>XXX</code>, <code>TODO</code>)</li>
+        <li>Textlänge: Warnung unter 10 oder über 250 Zeichen</li>
+      </ul>
+    </div>
+  </details>
+
+  <!-- Entwicklungsphasen -->
+  <div class="section-title" style="margin-top:2.5rem">Entwicklungsphasen</div>
+
+  <details class="group" open>
+    <summary>
+      <span class="group-label">Phasen 1–10</span>
+      <span class="line"></span>
+    </summary>
+
+    <!-- Phase 1 -->
+    <details class="phase">
+      <summary><span class="summary-text">Phase 1 – Initiales Quiz-Projekt <span class="date">(8. Mai 2026)</span></span></summary>
+      <div class="phase-body">
+        <p>Auslagerung der Quiz-Komponente aus dem Weberding-Hauptprojekt in einen
+        eigenständigen Projektordner mit eigenem Git-Repository.</p>
+
+        <h3>1.1&nbsp;&nbsp;Projektstruktur</h3>
+        <p><strong>Dateien:</strong> <code>index.html</code>, <code>scripts/quiz_tool.py</code>,
+        <code>SKILL.md</code>, <code>agents/openai.yaml</code>,
+        <code>publish-to-weberding.ps1</code>, <code>.gitignore</code>, <code>README.md</code></p>
+        <p>Acht Duo-Themendateien (<code>t_*.htm</code>) aus dem Weberding-Projekt übernommen.
+        Sounddateien für Richtig/Falsch-Feedback kopiert.</p>
+
+        <h3>1.2&nbsp;&nbsp;quiz_tool.py</h3>
+        <p>Erstes Validierungsskript: JSON-Extraktion, Pflichtfelder, Datentypen,
+        Duplikaterkennung, Antwortbalance-Prüfung (40–60&nbsp;% true).</p>
+
+        <h3>1.3&nbsp;&nbsp;Publish-Script</h3>
+        <p><code>publish-to-weberding.ps1</code> synchronisiert per robocopy nach
+        <code>C:\Daten\Projects\weberding\quiz</code> (ohne <code>.git</code> und <code>__pycache__</code>).</p>
+      </div>
+    </details>
+
+    <hr>
+
+    <!-- Phase 2 -->
+    <details class="phase">
+      <summary><span class="summary-text">Phase 2 – Duo/Quattro-Modi <span class="date">(8. Mai 2026)</span></span></summary>
+      <div class="phase-body">
+        <p>Einführung des zweiten Quiz-Modus: <strong>Quattro</strong> (Multiple-Choice mit vier
+        Antworten A–D). Umbenennung aller Themendateien auf das neue Präfixschema.</p>
+
+        <h3>2.1&nbsp;&nbsp;Dateinamen-Schema</h3>
+        <p>Alle bisherigen <code>t_*.htm</code> umbenannt in <code>td_*.htm</code> (Duo).
+        Zwei neue Quattro-Dateien erstellt: <code>tq_auswahlverfahren.htm</code>,
+        <code>tq_poolbillardregeln.htm</code>.</p>
+
+        <h3>2.2&nbsp;&nbsp;index.html – Moduswahl</h3>
+        <p>Neue Moduswahl Duo/Quattro in der Oberfläche. Separate Darstellung für
+        Quattro-Antworten (A–D-Buttons statt zwei großer Schaltflächen).</p>
+
+        <h3>2.3&nbsp;&nbsp;quiz_tool.py – Refaktorierung</h3>
+        <p>Validator für beide Modi (<code>validate_duo</code>, <code>validate_quattro</code>)
+        mit gemeinsamer <code>validate()</code>-Dispatcher-Funktion. Automatische
+        Modus-Erkennung anhand des Dateinamenpräfixes.</p>
+      </div>
+    </details>
+
+    <hr>
+
+    <!-- Phase 3 -->
+    <details class="phase">
+      <summary><span class="summary-text">Phase 3 – Umlaut-Fixes &amp; Quattro-Layout <span class="date">(9. Mai 2026)</span></span></summary>
+      <div class="phase-body">
+        <p>Behebung korrumpierter Umlaute in den Quattro-Katalogen und Layout-Korrektur
+        der Antwort-Buttons.</p>
+
+        <h3>3.1&nbsp;&nbsp;Umlaut-Korrekturen</h3>
+        <p><strong>Dateien:</strong> <code>tq_auswahlverfahren.htm</code>, <code>tq_poolbillardregeln.htm</code></p>
+        <p>Alle durch <code>?</code> ersetzten Umlaute (ä, ö, ü, ß&nbsp;etc.) wiederhergestellt.</p>
+
+        <h3>3.2&nbsp;&nbsp;Quattro-Button-Ausrichtung</h3>
+        <p><strong>Datei:</strong> <code>index.html</code></p>
+        <p>CSS-Anpassung <code>.btn_quattro</code>: <code>justify-content: flex-start</code> und
+        <code>padding-inline</code> ergänzt, damit A–D-Labels linksbündig erscheinen.</p>
+      </div>
+    </details>
+
+    <hr>
+
+    <!-- Phase 4 -->
+    <details class="phase">
+      <summary><span class="summary-text">Phase 4 – Schreibweise &amp; Icon-Einheitlichkeit <span class="date">(9. Mai 2026)</span></span></summary>
+      <div class="phase-body">
+        <p>Einheitliche Schreibweise „Quattro" (zuvor teils „Quattro") und konsistente
+        Darstellung der A–D-Kreissymbole.</p>
+
+        <h3>4.1&nbsp;&nbsp;Schreibweise vereinheitlicht</h3>
+        <p><strong>Datei:</strong> <code>index.html</code></p>
+        <p>Alle Vorkommen von „Quattro"/„quattro" in CSS-Klassen, JS-Variablen,
+        HTML-Option und Anzeigetext auf „Quattro"/„quattro" korrigiert.</p>
+
+        <h3>4.2&nbsp;&nbsp;A–D-Icon-Größe</h3>
+        <p>Explizites <code>font-size: 1.15rem</code> und <code>flex-shrink: 0</code> für die
+        Buchstaben-Kreise, damit alle vier Symbole identische Größe haben.</p>
+
+        <h3>4.3&nbsp;&nbsp;Antworttext-Layout</h3>
+        <p>Antworttext mit <code>flex: 1</code> linksbündig ausgerichtet. Kleinere
+        <code>font-size</code> für längere Antworttexte im Quattro-Modus.</p>
+      </div>
+    </details>
+
+    <hr>
+
+    <!-- Phase 5 -->
+    <details class="phase">
+      <summary><span class="summary-text">Phase 5 – Quellenangaben entfernt <span class="date">(9. Mai 2026)</span></span></summary>
+      <div class="phase-body">
+        <p>Bereinigung der Quizfragen: Alle Verweise auf LPA-Quellen aus den Fragetexten
+        entfernt, da diese in einem Quiz-Kontext irrelevant und irreführend sind.</p>
+
+        <h3>5.1&nbsp;&nbsp;Quellenverweise</h3>
+        <p><strong>Datei:</strong> <code>tq_auswahlverfahren.htm</code></p>
+        <p>22 Vorkommen von „laut LPA", „laut FAQ", „laut LPA-FAQ", „nach den LPA-FAQ"
+        und „steht in den FAQ" entfernt. Wo der Verweis das Hauptprädikat war
+        (Frage 92), wurde die Frage zu „ist korrekt?" umformuliert.</p>
+      </div>
+    </details>
+
+    <hr>
+
+    <!-- Phase 6 -->
+    <details class="phase">
+      <summary><span class="summary-text">Phase 6 – Skill quiz konsolidiert &amp; erweitert <span class="date">(9. Mai 2026)</span></span></summary>
+      <div class="phase-body">
+        <p>Vollständige Überarbeitung des Quiz-Skills: Sprachlint im Python-Tool,
+        neuer <code>check-lang</code>-Befehl, <code>publish</code>-Befehl, vollständige
+        ChatGPT-Codex-Implementierung und diese Anpassungs-Dokumentation.</p>
+
+        <h3>6.1&nbsp;&nbsp;quiz_tool.py – Heuristischer Sprachlint</h3>
+        <p>Neue Funktion <code>lint_text()</code> mit heuristischen Sprachprüfungen.
+        Neues Flag <code>--lint</code> für den <code>check</code>-Befehl.
+        <code>create</code> aktiviert Lint automatisch.</p>
+        <ul>
+          <li>Großschreibung am Satzanfang</li>
+          <li>Satzzeichen am Ende (Aussagen <code>.</code>/<code>!</code>, Fragen <code>?</code>)</li>
+          <li>Textlänge 10–250 Zeichen, doppelte Leerzeichen, HTML-Tags, Platzhaltertext</li>
+        </ul>
+
+        <h3>6.2&nbsp;&nbsp;SKILL.md – check-lang &amp; publish</h3>
+        <p>Neuer Befehl <code>/quiz check-lang</code>: zweistufige Sprachprüfung –
+        heuristischer Lint via Python-Tool, dann Claude-Sprachprüfung mit direkter Korrektur.</p>
+        <p>Neuer Befehl <code>/quiz publish</code>: ruft <code>publish-to-weberding.ps1</code> auf.</p>
+
+        <h3>6.3&nbsp;&nbsp;agents/openai.yaml – vollständige ChatGPT-Implementierung</h3>
+        <p>Von 4 Zeilen auf vollständige Instruktionen erweitert: alle Befehle
+        (<code>$quiz</code>-Präfix), Datenstrukturen, Workflows für create/check/check-lang/publish.
+        Fallback für ChatGPT Codex bei überschrittenem Claude-Token-Kontingent.</p>
+
+        <h3>6.4&nbsp;&nbsp;Anpassungen-Dokumentation</h3>
+        <p><code>Anpassungen.md</code> und <code>Anpassungen.html</code> erstellt.
+        Skill <code>/quiz-anpassungen</code> für die chronologische Fortschreibung.</p>
+      </div>
+    </details>
+
+    <hr>
+
+    <!-- Phase 7 -->
+    <details class="phase">
+      <summary><span class="summary-text">Phase 7 – Open Trivia DB-Integration &amp; Publish-Workflow <span class="date">(9. Mai 2026)</span></span></summary>
+      <div class="phase-body">
+        <p>Anbindung der externen Fragedatenbank „Open Trivia DB" als zweite Fragequelle
+        sowie Einführung eines zweistufigen Publish-Workflows über einen <code>out/</code>-Zwischenordner.</p>
+
+        <h3>7.1&nbsp;&nbsp;index.html – Open Trivia DB-Anbindung</h3>
+        <p><strong>Datei:</strong> <code>index.html</code></p>
+        <p>Neue Quellenauswahl im Control Dock: Dropdown „Quelle" mit den Optionen <strong>Lokal</strong>
+        (bisheriger Betrieb) und <strong>Open Trivia DB</strong> (externe API).</p>
+        <p>Bei OTDB-Modus wird das Thema-Dropdown ausgeblendet und durch ein Kategorie-Dropdown
+        ersetzt, das Kategorien der OTDB dynamisch lädt. Das Control Dock Grid wurde auf 6 Spalten
+        erweitert.</p>
+        <p>Neue Funktionen:</p>
+        <ul>
+          <li><code>quelle_geaendert()</code> – schaltet zwischen lokalem und OTDB-Modus um</li>
+          <li><code>otdb_token_holen()</code> – Session-Token holen, via <code>sessionStorage</code> gecacht</li>
+          <li><code>lade_otdb_kategorien()</code> – füllt das Kategorie-Dropdown per API</li>
+          <li><code>lade_otdb_fragen()</code> – ruft Fragen ab und übersetzt ins interne Format</li>
+          <li><code>htmlDecode()</code> – dekodiert HTML-Entities in OTDB-Antworttexten</li>
+          <li><code>shuffle()</code> – mischt Antwortoptionen zufällig</li>
+        </ul>
+        <p>TTS-Sprache wird pro Quelle gewählt: Englisch (<code>en-US</code>) für OTDB,
+        Deutsch (<code>de-DE</code>) für lokale Fragen.</p>
+
+        <h3>7.2&nbsp;&nbsp;scripts/quiz_tool.py – publish-Befehl</h3>
+        <p><strong>Datei:</strong> <code>scripts/quiz_tool.py</code></p>
+        <p>Neuer Befehl <code>publish</code>: befüllt den <code>out/</code>-Unterordner mit allen
+        webserver-relevanten Dateien (<code>index.html</code>, <code>Anpassungen.html</code>,
+        <code>td_*.htm</code>, <code>tq_*.htm</code>, Sounddateien, <code>media/</code>).
+        Entwicklungs-Artefakte verbleiben im Projektstamm.</p>
+        <p>Aufruf: <code>python -B scripts\quiz_tool.py publish</code></p>
+
+        <h3>7.3&nbsp;&nbsp;publish-to-weberding.ps1 – out/-Workflow</h3>
+        <p><strong>Datei:</strong> <code>publish-to-weberding.ps1</code></p>
+        <p>Publish-Quelle ist jetzt der <code>out/</code>-Unterordner statt des Projektstamms.
+        Das Script bricht ab, wenn <code>out/</code> fehlt. Zweistufiger Ablauf:</p>
+        <ol>
+          <li><code>python -B scripts\quiz_tool.py publish</code> → befüllt <code>out/</code></li>
+          <li><code>.\publish-to-weberding.ps1</code> → kopiert nach <code>weberding\quiz</code></li>
+        </ol>
+
+        <h3>7.4&nbsp;&nbsp;README.md – Schreibweise</h3>
+        <p><strong>Datei:</strong> <code>README.md</code></p>
+        <p>Tippfehler „Quatro" in zwei Überschriften und einem Befehlsbeispiel durch
+        die korrekte Schreibweise „Quattro" ersetzt.</p>
+      </div>
+    </details>
+
+    <hr>
+
+    <!-- Phase 8 -->
+    <details class="phase">
+      <summary><span class="summary-text">Phase 8 – Fragenkataloge überarbeitet <span class="date">(9. Mai 2026)</span></span></summary>
+      <div class="phase-body">
+        <p>Ausgewählte Duo-Fragen wurden von <code>true</code> auf <code>false</code> umgestellt,
+        um eine bessere Balance zwischen korrekten und falschen Aussagen zu erreichen.
+        Die Quattro-Falschantworten im Auswahlverfahren-Katalog wurden inhaltlich überarbeitet.</p>
+
+        <h3>8.1&nbsp;&nbsp;Duo-Kataloge – false-Answer-Diversifizierung</h3>
+        <p><strong>Dateien:</strong> <code>td_deutsch.htm</code>, <code>td_geschichte.htm</code>,
+        <code>td_society.htm</code>, <code>td_auswahlverfahren.htm</code></p>
+        <p>Bei zuvor wahren Aussagen wurde der Aussagetext verfälscht und
+        <code>"antwort"</code> auf <code>false</code> gesetzt.</p>
+        <table>
+          <tr><th>Datei</th><th>Umgestellte Fragen</th></tr>
+          <tr><td><code>td_deutsch.htm</code></td><td>8 (Schreibung ß/ss, Wortarten, Satzanfang)</td></tr>
+          <tr><td><code>td_geschichte.htm</code></td><td>6 (Ritter, Burgen, Mittelalter, Martin Luther)</td></tr>
+          <tr><td><code>td_society.htm</code></td><td>6 (Begrüßung, Familie, Rathaus, Post, Demokratie)</td></tr>
+          <tr><td><code>td_auswahlverfahren.htm</code></td><td>5 (Schulnoten, Auswahlprüfung, Verfahren, Vorstellungsgespräch, Mathematik)</td></tr>
+        </table>
+
+        <h3>8.2&nbsp;&nbsp;tq_auswahlverfahren.htm – Falschantworten überarbeitet</h3>
+        <p><strong>Datei:</strong> <code>tq_auswahlverfahren.htm</code></p>
+        <p>Bei 4 Quattro-Fragen wurden Falschantworten durch realistischere Alternativen ersetzt,
+        die näher am tatsächlichen LPA-Verfahren formuliert sind und damit schwerer durch
+        Ausschlussverfahren zu erkennen sind. Eine Frageformulierung wurde präzisiert.</p>
+      </div>
+    </details>
+
+    <hr>
+
+    <!-- Phase 9 -->
+    <details class="phase">
+      <summary><span class="summary-text">Phase 9 – Sprachliche Korrekturen check-lang <span class="date">(9. Mai 2026)</span></span></summary>
+      <div class="phase-body">
+        <p>Vollständige Sprachprüfung (<code>/quiz all check-lang</code>) aller Kataloge: alle acht
+        Duo-Kataloge ohne Befund, zwei Quattro-Kataloge mit insgesamt sechs Fehlern behoben.</p>
+
+        <h3>9.1&nbsp;&nbsp;tq_auswahlverfahren.htm – fünf Korrekturen</h3>
+        <p><strong>Datei:</strong> <code>tq_auswahlverfahren.htm</code></p>
+        <table>
+          <tr><th>Frage</th><th>Feld</th><th>Fehler</th><th>Korrektur</th></tr>
+          <tr><td>7</td><td>antwort[1]</td><td>„Eine gültigen Reisepass"</td><td>„Einen gültigen Reisepass"</td></tr>
+          <tr><td>11</td><td>antwort[0]</td><td>„über 30 Prozent"</td><td>„Über 30 Prozent"</td></tr>
+          <tr><td>11</td><td>antwort[1]</td><td>„ca. 10 bis 20 Prozent"</td><td>„Etwa 10 bis 20 Prozent"</td></tr>
+          <tr><td>17</td><td>antwort[1]</td><td>„Nach Auslösen den Senden-Buttons ist automatisch angemeldet."</td><td>„Nach Auslösen des Senden-Buttons ist man automatisch angemeldet."</td></tr>
+          <tr><td>19</td><td>frage</td><td>überflüssiges „die Bewerbung"</td><td>entfernt</td></tr>
+        </table>
+
+        <h3>9.2&nbsp;&nbsp;tq_poolbillardregeln.htm – ein Platzhalter ersetzt</h3>
+        <p><strong>Datei:</strong> <code>tq_poolbillardregeln.htm</code></p>
+        <p>Frage 3, antwort[2] enthielt Meta-Text aus dem Erstellungsprozess
+        („Es gibt nur wahre und falsche Antworten."), der nie durch eine echte
+        Falschantwort ersetzt wurde. Ersetzt durch:
+        „Das Spiel endet, wenn zuerst die 9 versenkt wird."</p>
+      </div>
+    </details>
+
+    <hr>
+
+    <!-- Phase 10 -->
+    <details class="phase">
+      <summary><span class="summary-text">Phase 10 – GitHub-Publish &amp; .gitignore <span class="date">(9. Mai 2026)</span></span></summary>
+      <div class="phase-body">
+        <p>Erweiterung des Publish-Workflows um einen GitHub-Schritt sowie Pflege
+        der <code>.gitignore</code>.</p>
+
+        <h3>10.1&nbsp;&nbsp;SKILL.md – publish um Schritt 3 erweitert</h3>
+        <p><strong>Datei:</strong> <code>SKILL.md</code></p>
+        <p>Der <code>publish</code>-Abschnitt hat jetzt drei statt zwei Schritte.
+        Schritt 3 stagt alle Quelldateien (ohne <code>out/</code> und <code>.claude/</code>),
+        leitet eine kontextbasierte Commit-Message aus dem Konversationsverlauf ab
+        und pusht auf <code>origin master</code> →
+        <code>https://github.com/chrisgitti/quiz</code>.</p>
+
+        <h3>10.2&nbsp;&nbsp;.gitignore – out/ ausgeschlossen</h3>
+        <p><strong>Datei:</strong> <code>.gitignore</code></p>
+        <p><code>out/</code> als Build-Artefakt ergänzt, damit das befüllte
+        Publish-Verzeichnis nicht versehentlich ins Repository gelangt.</p>
+      </div>
+    </details>
+
+  </details>
+
+  <!-- Sonstiges -->
+  <div class="section-title" style="margin-top:2rem">Sonstiges</div>
+
+  <details class="phase" open>
+    <summary><span class="summary-text">Aktuelle Anmerkungen</span></summary>
+    <div class="phase-body">
+      <p style="color:rgba(255,255,255,0.35);font-style:italic">
+        Raum für aktuelle Anmerkungen – kann jederzeit überschrieben werden.
+      </p>
+    </div>
+  </details>
+
+</div>
+</body>
+</html>

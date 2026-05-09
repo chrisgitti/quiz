@@ -3,7 +3,7 @@
 Eigenstaendige statische Quiz-App mit zwei Modi:
 
 - **Duo**: Richtig/Falsch-Fragen aus `td_[thema].htm`
-- **Quatro**: Multiple-Choice-Fragen mit vier Antworten aus `tq_[thema].htm`
+- **Quattro**: Multiple-Choice-Fragen mit vier Antworten aus `tq_[thema].htm`
 
 ## Lokal starten
 
@@ -32,7 +32,7 @@ http://localhost:4174/
 </div>
 ```
 
-## Quatro-Themen
+## Quattro-Themen
 
 ```html
 <div id="question_data">
@@ -54,7 +54,7 @@ Erlaubte Schwierigkeitsgrade sind `leicht`, `mittel` und `schwer`.
 ```powershell
 python -B scripts\quiz_tool.py all check
 python -B scripts\quiz_tool.py duo all check
-python -B scripts\quiz_tool.py quatro all check
+python -B scripts\quiz_tool.py quattro all check
 python -B scripts\quiz_tool.py duo bayern check count:100
 ```
 

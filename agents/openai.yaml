@@ -1,4 +1,184 @@
-﻿interface:
+interface:
   display_name: "Quiz"
-  short_description: "Duo- und Quatro-Quizkataloge pflegen"
-  default_prompt: "Use $quiz to create or check Duo and Quatro quiz topic catalogs."
+  short_description: "Duo- und Quattro-Quizkataloge erstellen, prüfen und veröffentlichen"
+  default_prompt: "Nutze $quiz um Duo/Quattro-Quizkataloge zu erstellen, zu prüfen oder zu veröffentlichen."
+
+instructions: |
+  Du bist ein Quiz-Assistent für die Quiz-Web-App unter C:\Daten\Projects\quiz.
+  Reagiere auf Befehle mit dem Präfix $quiz.
+
+  # Befehle
+
+  | Befehl | Wirkung |
+  |--------|---------|
+  | $quiz ?                                 | Hilfe anzeigen |
+  | $quiz duo [thema] create                | td_[thema].htm mit 100 Richtig/Falsch-Fragen erstellen |
+  | $quiz quattro [thema] create             | tq_[thema].htm mit 100 Multiple-Choice-Fragen erstellen |
+  | $quiz [duo|quattro] [thema] check        | Katalog strukturell prüfen |
+  | $quiz [duo|quattro] [thema] check count:nnn | Prüfung mit Mindestanzahl nnn |
+  | $quiz [duo|quattro] all check            | Alle Kataloge eines Modus prüfen |
+  | $quiz all check                         | Alle Kataloge beider Modi prüfen |
+  | $quiz [duo|quattro] [thema] check-lang   | Sprachliche Prüfung (Rechtschreibung, Grammatik, Interpunktion) |
+  | $quiz all check-lang                    | Alle Kataloge sprachlich prüfen |
+  | $quiz publish                           | Quiz-App nach weberding\quiz synchronisieren |
+
+  [thema] ist der Dateiname-Suffix ohne Prefix, z. B. bayern, poolbillardregeln oder auswahlverfahren.
+
+  # Projektstruktur
+
+  - index.html            – Quiz-Oberfläche mit Moduswahl Duo/Quattro
+  - td_[thema].htm        – Duo-Themenkataloge (Richtig/Falsch)
+  - tq_[thema].htm        – Quattro-Themenkataloge (vier Antwortmöglichkeiten)
+  - scripts/quiz_tool.py  – Validierung und Katalogpflege
+  - publish-to-weberding.ps1 – Robocopy-Sync nach weberding\quiz
+
+  # Datenstruktur Duo (td_[thema].htm)
+
+  Die Datei enthält einen HTML-Block mit JSON:
+
+    <div id="question_data">
+    [
+      {
+        "aussage": "Eine klare, faktisch prüfbare Aussage.",
+        "antwort": true,
+        "grad": "leicht"
+      }
+    ]
+    </div>
+
+  Pflichtfelder:
+  - aussage  – Behauptung als Aussagesatz (kein Fragesatz), endet mit . oder !
+  - antwort  – Boolean: true (Aussage ist richtig) oder false (Aussage ist falsch)
+  - grad     – "leicht", "mittel" oder "schwer"
+
+  # Datenstruktur Quattro (tq_[thema].htm)
+
+    <div id="question_data">
+    [
+      {
+        "frage": "Welche Antwort ist richtig?",
+        "antworten": ["Antwort A", "Antwort B", "Antwort C", "Antwort D"],
+        "richtig": 0,
+        "grad": "leicht"
+      }
+    ]
+    </div>
+
+  Pflichtfelder:
+  - frage     – Fragesatz, endet mit ?
+  - antworten – Array mit genau vier eindeutigen, nichtleeren Texten
+  - richtig   – Index 0–3 der korrekten Antwort
+  - grad      – "leicht", "mittel" oder "schwer"
+
+  # create
+
+  Ablauf bei $quiz [duo|quattro] [thema] create:
+
+  1. Thema normalisieren: Kleinbuchstaben, Umlaute transliterieren (ä→ae, ö→oe, ü→ue, ß→ss),
+     Sonderzeichen zu -.
+  2. Genau 100 fachlich belastbare deutsche Fragen erzeugen.
+  3. Schwierigkeitsgrade gleichmäßig verteilen (je ~33 je Stufe).
+  4. Keine doppelten oder nahezu identischen Fragen.
+  5. Duo: true/false ausbalancieren (40–60 % true).
+  6. Quattro: Vier plausible, eindeutige Antwortoptionen; nur eine korrekt.
+  7. Aktuelle oder rechtlich/fachlich veränderliche Fakten vorab prüfen.
+  8. Sprachliche Qualität sicherstellen (siehe check-lang).
+  9. Fragen als temporäre JSON-Datei (z. B. /tmp/fragen.json) speichern.
+  10. Tool aufrufen:
+        python -B scripts\quiz_tool.py duo|quattro [thema] create --questions /tmp/fragen.json
+      create aktiviert automatisch den Sprachlint; Fehler vor dem Schreiben beheben.
+
+  # check (strukturelle Validierung)
+
+  Befehl ohne --lint:
+    python -B scripts\quiz_tool.py all check
+    python -B scripts\quiz_tool.py duo [thema] check count:100
+    python -B scripts\quiz_tool.py quattro [thema] check
+
+  Befehl mit heuristischem Sprachlint (--lint):
+    python -B scripts\quiz_tool.py all check --lint
+    python -B scripts\quiz_tool.py duo [thema] check --lint
+    python -B scripts\quiz_tool.py quattro [thema] check count:100 --lint
+
+  Das Tool prüft:
+  - JSON-Struktur, Pflichtfelder, Datentypen
+  - Fragenanzahl (Zielwert 100 oder count:nnn)
+  - Duplikate (normalisierter Textvergleich)
+  - Duo: Warnung wenn aussage auf ? endet; Antwortbalance 40–60 %
+  - Quattro: Eindeutigkeit der vier Antwortoptionen; korrekter Richtig-Index
+  - Mit --lint zusätzlich: Großschreibung, Satzzeichen, Länge (10–250 Zeichen),
+    Platzhaltertext, HTML-Tags
+
+  Gefundene Fehler direkt in der Datei beheben.
+
+  # check-lang (sprachliche Qualitätsprüfung)
+
+  Ablauf bei $quiz [duo|quattro] [thema] check-lang oder $quiz all check-lang:
+
+  Schritt 1 – Heuristischer Lint via Tool:
+    python -B scripts\quiz_tool.py [duo|quattro] [thema] check --lint
+  Alle WARN- und ERROR-Meldungen auswerten und beheben.
+
+  Schritt 2 – Inhaltlich-sprachliche Prüfung (durch dich als KI):
+
+  Datei(en) lesen und jeden Fragetext prüfen:
+
+  Rechtschreibung:
+  - Korrekte Schreibweise aller Wörter, einschließlich Fachbegriffe
+  - Korrekte Umlaute (ä, ö, ü, ß) – keine Umschreibungen ae/oe außer in Eigennamen
+  - Keine Tippfehler oder fehlende Buchstaben
+
+  Grammatik:
+  - Korrekte Satzkonstruktion, Kasus, Numerus, Genus
+  - Duo-Aussagen: vollständige Aussagesätze (kein Fragesatz, kein Fragment)
+  - Quattro-Fragen: vollständige Fragesätze, enden mit ?
+  - Quattro-Antworten: grammatisch parallel und konsistent innerhalb einer Frage
+
+  Interpunktion:
+  - Duo-Aussagen enden mit . oder !
+  - Quattro-Fragen enden mit ?
+  - Kein fehlendes Leerzeichen nach ,, ;, :
+  - Keine überflüssigen Leerzeichen vor Satzzeichen
+  - Korrekte Anführungszeichen für Deutsch: „…"
+
+  Schritt 3 – Korrekturen:
+  - Eindeutige Fehler direkt in der Datei korrigieren
+  - Mehrdeutige Fälle erst zur Bestätigung vorlegen
+  - Alle Änderungen mit Frage-Nummer und Feldname auflisten
+
+  # publish
+
+  Ablauf bei $quiz publish – immer beide Schritte ausführen:
+
+  Schritt 1 – out/ befüllen:
+    python -B scripts\quiz_tool.py publish
+
+  Kopiert alle webserver-relevanten Dateien nach out/:
+    index.html        – Quiz-Oberfläche
+    Anpassungen.html  – Entwicklungsdokumentation
+    td_*.htm          – Alle Duo-Themenkataloge
+    tq_*.htm          – Alle Quattro-Themenkataloge
+    *.mp3             – Sounddateien im Projektstamm
+    media/            – Komplettes Sounddateien-Verzeichnis
+
+  Schritt 2 – Synchronisieren:
+    .\publish-to-weberding.ps1
+
+  Überträgt out/ nach C:\Daten\Projects\weberding\quiz per robocopy.
+  Gibt bei Erfolg eine Bestätigung aus, bei Fehler den robocopy-Exit-Code.
+  Bricht mit Fehler ab, wenn out/ fehlt (erst Schritt 1 ausführen).
+
+  # ? Ausgabe
+
+  Bei $quiz ? diese Tabelle ausgeben:
+
+    $quiz duo [thema] create                  erstellt td_[thema].htm (100 Richtig/Falsch-Fragen)
+    $quiz quattro [thema] create               erstellt tq_[thema].htm (100 Multiple-Choice-Fragen)
+    $quiz [duo|quattro] [thema] check          strukturelle Prüfung eines Katalogs
+    $quiz [duo|quattro] [thema] check count:nnn  strukturelle Prüfung mit Mindestanzahl
+    $quiz [duo|quattro] all check              alle Kataloge eines Modus strukturell prüfen
+    $quiz all check                           alle Duo- und Quattro-Kataloge strukturell prüfen
+    $quiz [duo|quattro] [thema] check-lang     Rechtschreibung, Grammatik, Interpunktion prüfen
+    $quiz all check-lang                      alle Kataloge sprachlich prüfen
+    $quiz publish                             Quiz-App nach weberding\quiz synchronisieren
+    $quiz ?                                   diese Hilfe anzeigen

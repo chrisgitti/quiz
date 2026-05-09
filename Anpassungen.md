@@ -512,11 +512,15 @@ Dritte Quellenoption „Online" im Quelle-Dropdown. Beim Auswählen öffnet sich
 
 _Raum für aktuelle Anmerkungen – kann jederzeit überschrieben werden._
 
-### Nächste Schritte: Render-Deployment
+### Render.com-Deployment – Status
 
-Online-Modus ist lokal vollständig getestet. Ausstehend:
+✅ GitHub-Repo `chrisgitti/quiz-server` angelegt und gepusht  
+✅ Render.com Web Service eingerichtet – Live-URL: `https://quiz-server-rjv7.onrender.com`  
+✅ `ONLINE_SERVER_URL` in `index.html` auf Render-URL gesetzt  
+✅ `/quiz publish` + GitHub-Push abgeschlossen  
 
-1. GitHub-Repo `chrisgitti/quiz-server` anlegen und `C:\Daten\Projects\quiz-server` pushen
-2. Render.com Web Service einrichten (Node.js, `npm start`, Port `$PORT`)
-3. `ONLINE_SERVER_URL` in `index.html` auf die zugewiesene Render-URL aktualisieren
-4. `/quiz publish` + GitHub-Push für das Quiz-Repo
+### Offener Punkt: Render.com-Plan
+
+Render.com Workspace Pro ($25/Monat) wurde gebucht, um den Timeout-on-first-Request der Billard-App zu vermeiden. Für den Quiz-Server (zweiter Webservice) wird noch ein Service-Plan gewählt ($0 Free / $7 Starter / $25 Standard).
+
+Empfehlung: Starter ($7/Monat) pro Service, Hobby-Workspace (kostenlos) – ergibt $14/Monat statt $39/Monat. Prüfen ob Pro-Workspace wirklich benötigt wird.

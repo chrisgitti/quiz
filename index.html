@@ -599,6 +599,15 @@
             padding: 5px 10px; border-radius: 8px; background: rgba(255,255,255,0.06);
             font-size: 0.86rem; font-weight: 800;
         }
+        .online_verlassen_bar {
+            display: none; justify-content: flex-end; padding-top: 4px;
+        }
+        .btn_online_verlassen {
+            background: none; border: 1px solid rgba(255,255,255,0.18); border-radius: 8px;
+            color: var(--muted); font-size: 0.78rem; font-weight: 700; padding: 5px 12px;
+            cursor: pointer; transition: color .15s, border-color .15s;
+        }
+        .btn_online_verlassen:hover { color: var(--red); border-color: var(--red); }
 
         /* === ONLINE OVERLAY === */
         .online_overlay {
@@ -834,6 +843,9 @@
     <div class="live_score_panel" id="live_score_panel" style="display:none">
         <div class="live_score_title">Zwischenstand</div>
         <div class="live_score_items" id="live_score_inhalt"></div>
+    </div>
+    <div class="online_verlassen_bar" id="online_verlassen_bar">
+        <button class="btn_online_verlassen" onclick="online_beenden()">✕ Verlassen</button>
     </div>
     </div>
 </main>
@@ -1518,6 +1530,7 @@
         socket_online.on('frage', ({ index, total, text, antworten, modus }) => {
             document.getElementById('online_overlay').style.display = 'none';
             document.getElementById('live_score_panel').style.display = 'none';
+            document.getElementById('online_verlassen_bar').style.display = 'flex';
             aktueller_modus = modus;
             document.getElementById('sel_modus').value = modus;
             const grid = document.getElementById('answer_grid');
@@ -1548,10 +1561,15 @@
             const fill = document.getElementById('timer_fill');
             if (fill) { fill.style.transition = 'width 1s linear'; fill.style.width = `${(sekunden / 15) * 100}%`; }
         });
-        socket_online.on('antwort_bestaetigt', ({ korrekt }) => {
+        socket_online.on('antwort_bestaetigt', ({ korrekt, antwort_index }) => {
             setze_button_status(true);
             setze_status(korrekt ? 'Richtig!' : 'Falsch!', korrekt ? 'right' : 'wrong', korrekt ? '✓' : '×');
             setze_stage_status(korrekt ? 'is-right' : 'is-wrong');
+            const aktiver_button = document.getElementById(`btn_answer_${antwort_index}`);
+            if (aktiver_button) {
+                aktiver_button.classList.add(korrekt ? 'selected-right' : 'selected-wrong');
+                aktiver_button.classList.add(korrekt ? 'is-correct-choice' : 'is-wrong-choice');
+            }
             const wahl = document.getElementById('sel_audio').value;
             if (wahl === 'ton' || wahl === 'beides') {
                 const a = korrekt ? sound_richtig : sound_falsch;
@@ -1692,6 +1710,7 @@
         document.getElementById('online_overlay').style.display = 'none';
         document.getElementById('live_score_panel').style.display = 'none';
         document.getElementById('timer_row').style.display = 'none';
+        document.getElementById('online_verlassen_bar').style.display = 'none';
     }
 
     function online_beenden() {

@@ -933,15 +933,19 @@ python -B scripts\quiz_tool.py all check --lint   # + Sprachlint</code></pre>
   <details class="phase" open>
     <summary><span class="summary-text">Aktuelle Anmerkungen</span></summary>
     <div class="phase-body">
-      <h3>Nächste Schritte: Render-Deployment</h3>
-      <p>Online-Modus ist lokal vollständig getestet. Ausstehend:</p>
-      <ol>
-        <li>GitHub-Repo <code>chrisgitti/quiz-server</code> anlegen und
-            <code>C:\Daten\Projects\quiz-server</code> pushen</li>
-        <li>Render.com Web Service einrichten (Node.js, <code>npm start</code>, Port <code>$PORT</code>)</li>
-        <li><code>ONLINE_SERVER_URL</code> in <code>index.html</code> auf die zugewiesene Render-URL aktualisieren</li>
-        <li><code>/quiz publish</code> + GitHub-Push für das Quiz-Repo</li>
-      </ol>
+      <h3>Render.com-Deployment &ndash; Status</h3>
+      <ul>
+        <li>✅ GitHub-Repo <code>chrisgitti/quiz-server</code> angelegt und gepusht</li>
+        <li>✅ Render.com Web Service eingerichtet &ndash; Live-URL: <code>https://quiz-server-rjv7.onrender.com</code></li>
+        <li>✅ <code>ONLINE_SERVER_URL</code> in <code>index.html</code> auf Render-URL gesetzt</li>
+        <li>✅ <code>/quiz publish</code> + GitHub-Push abgeschlossen</li>
+      </ul>
+
+      <h3>Offener Punkt: Render.com-Plan</h3>
+      <p>Render.com Workspace Pro ($25/Monat) wurde gebucht, um den Timeout-on-first-Request der Billard-App zu vermeiden.
+         Für den Quiz-Server (zweiter Webservice) wird noch ein Service-Plan gewählt ($0 Free / $7 Starter / $25 Standard).</p>
+      <p>Empfehlung: Starter ($7/Monat) pro Service, Hobby-Workspace (kostenlos) &ndash; ergibt $14/Monat statt $39/Monat.
+         Prüfen ob Pro-Workspace wirklich benötigt wird.</p>
     </div>
   </details>
 

@@ -132,16 +132,16 @@ Textlängen, doppelte Leerzeichen, HTML-Tags und Platzhaltertext.
 | `td_deutsch.htm` | Duo | Deutsche Sprache |
 | `td_geschichte.htm` | Duo | Deutsche Geschichte |
 | `td_pflanzen.htm` | Duo | Pflanzen |
-| `td_poolbillardregeln.htm` | Duo | Pool-Billard-Regeln |
+| `td_poolbillard.htm` | Duo | Pool-Billard |
 | `td_society.htm` | Duo | Gesellschaft & Kultur |
 | `td_tiere.htm` | Duo | Tiere |
 | `tq_auswahlverfahren.htm` | Quattro | Beamten-Auswahlverfahren (LPA Bayern) |
-| `tq_poolbillardregeln.htm` | Quattro | Pool-Billard-Regeln |
+| `tq_poolbillard.htm` | Quattro | Pool-Billard |
 
 ---
 
 <details>
-<summary><strong>Entwicklungsphasen 1–12</strong></summary>
+<summary><strong>Entwicklungsphasen 1–13</strong></summary>
 
 ## Phase 1 – Initiales Quiz-Projekt (8. Mai 2026)
 
@@ -568,6 +568,31 @@ Im Endergebnis-Panel erscheint neben „Beenden" ein neuer **„Nochmal"**-Butto
 | „Das LPA ist …" | „Der LPA ist …" |
 
 Komposita wie „das LPA-Auswahlverfahren" (Genus von „Auswahlverfahren" = sächlich) bleiben unverändert.
+
+---
+
+## Phase 13 – Poolbillard-Kataloge umbenannt & erweitert (9. Mai 2026)
+
+Die beiden Poolbillard-Kataloge wurden umbenannt und mit allgemeinen Billardfragen aus einer externen Quelldatei ergänzt.
+
+### 13.1  Katalogdateien umbenannt
+
+**Dateien:** `td_poolbillardregeln.htm` → `td_poolbillard.htm`, `tq_poolbillardregeln.htm` → `tq_poolbillard.htm`
+
+Umbenennung per `git mv` für klarere, kürzere Bezeichnung ohne redundantes „-regeln".
+
+### 13.2  Neue Billardfragen aus externer Quelldatei ergänzt
+
+**Dateien:** `td_poolbillard.htm`, `tq_poolbillard.htm`
+
+17 allgemeine Billardfragen (Queue-Bezeichnung, Tischlänge, Kugelfarben und -nummern, Shot-Typen, Spieltechniken usw.) aus `c:\temp\billardfragen.txt` wurden in beide Kataloge integriert.
+
+| Katalog | Vorher | Nachher | Neue Einträge |
+|---------|--------|---------|---------------|
+| `tq_poolbillard.htm` | 30 Fragen | 47 Fragen | +17 Quattro-Fragen |
+| `td_poolbillard.htm` | 100 Fragen | 134 Fragen | +34 Duo-Aussagen |
+
+Für den Duo-Katalog wurde pro Quattro-Frage je eine wahre Aussage (korrekte Antwort) und eine falsche Aussage (eine der Fehlantworten) erzeugt.
 
 </details>
 

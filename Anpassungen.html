@@ -484,11 +484,11 @@
       <tr><td><code>td_deutsch.htm</code></td><td><span class="badge badge-cyan">Duo</span></td><td>Deutsche Sprache</td></tr>
       <tr><td><code>td_geschichte.htm</code></td><td><span class="badge badge-cyan">Duo</span></td><td>Deutsche Geschichte</td></tr>
       <tr><td><code>td_pflanzen.htm</code></td><td><span class="badge badge-cyan">Duo</span></td><td>Pflanzen</td></tr>
-      <tr><td><code>td_poolbillardregeln.htm</code></td><td><span class="badge badge-cyan">Duo</span></td><td>Pool-Billard-Regeln</td></tr>
+      <tr><td><code>td_poolbillard.htm</code></td><td><span class="badge badge-cyan">Duo</span></td><td>Pool-Billard</td></tr>
       <tr><td><code>td_society.htm</code></td><td><span class="badge badge-cyan">Duo</span></td><td>Gesellschaft &amp; Kultur</td></tr>
       <tr><td><code>td_tiere.htm</code></td><td><span class="badge badge-cyan">Duo</span></td><td>Tiere</td></tr>
       <tr><td><code>tq_auswahlverfahren.htm</code></td><td><span class="badge badge-amber">Quattro</span></td><td>Beamten-Auswahlverfahren (LPA Bayern)</td></tr>
-      <tr><td><code>tq_poolbillardregeln.htm</code></td><td><span class="badge badge-amber">Quattro</span></td><td>Pool-Billard-Regeln</td></tr>
+      <tr><td><code>tq_poolbillard.htm</code></td><td><span class="badge badge-amber">Quattro</span></td><td>Pool-Billard</td></tr>
     </table>
   </div>
 
@@ -559,7 +559,7 @@ python -B scripts\quiz_tool.py all check --lint   # + Sprachlint</code></pre>
 
   <details class="group" open>
     <summary>
-      <span class="group-label">Phasen 1–12</span>
+      <span class="group-label">Phasen 1–13</span>
       <span class="line"></span>
     </summary>
 
@@ -974,6 +974,30 @@ python -B scripts\quiz_tool.py all check --lint   # + Sprachlint</code></pre>
           <tr><td>„Das LPA ist …"</td><td>„Der LPA ist …"</td></tr>
         </table>
         <p>Komposita wie „das LPA-Auswahlverfahren" (Genus von „Auswahlverfahren" = sächlich) bleiben unverändert.</p>
+      </div>
+    </details>
+
+    <hr>
+
+    <!-- Phase 13 -->
+    <details class="phase">
+      <summary><span class="summary-text">Phase 13 – Poolbillard-Kataloge umbenannt &amp; erweitert <span class="date">(9. Mai 2026)</span></span></summary>
+      <div class="phase-body">
+        <p>Die beiden Poolbillard-Kataloge wurden umbenannt und mit allgemeinen Billardfragen aus einer externen Quelldatei ergänzt.</p>
+
+        <h3>13.1&nbsp;&nbsp;Katalogdateien umbenannt</h3>
+        <p><strong>Dateien:</strong> <code>td_poolbillardregeln.htm</code> → <code>td_poolbillard.htm</code>, <code>tq_poolbillardregeln.htm</code> → <code>tq_poolbillard.htm</code></p>
+        <p>Umbenennung per <code>git mv</code> für klarere, kürzere Bezeichnung ohne redundantes „-regeln".</p>
+
+        <h3>13.2&nbsp;&nbsp;Neue Billardfragen aus externer Quelldatei ergänzt</h3>
+        <p><strong>Dateien:</strong> <code>td_poolbillard.htm</code>, <code>tq_poolbillard.htm</code></p>
+        <p>17 allgemeine Billardfragen (Queue-Bezeichnung, Tischlänge, Kugelfarben und -nummern, Shot-Typen, Spieltechniken usw.) wurden in beide Kataloge integriert.</p>
+        <table>
+          <tr><th>Katalog</th><th>Vorher</th><th>Nachher</th><th>Neue Einträge</th></tr>
+          <tr><td><code>tq_poolbillard.htm</code></td><td>30 Fragen</td><td>47 Fragen</td><td>+17 Quattro-Fragen</td></tr>
+          <tr><td><code>td_poolbillard.htm</code></td><td>100 Fragen</td><td>134 Fragen</td><td>+34 Duo-Aussagen</td></tr>
+        </table>
+        <p>Für den Duo-Katalog wurde pro Quattro-Frage je eine wahre Aussage (korrekte Antwort) und eine falsche Aussage (eine der Fehlantworten) erzeugt.</p>
       </div>
     </details>
 

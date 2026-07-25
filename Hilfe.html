@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<!--
+  Quiz-App – Hilfe & Anleitung
+
+  Copyright (c) 2026 Christian Weber.
+  Original development repository and history retained by the author.
+  All rights reserved unless explicitly licensed otherwise.
+-->
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz – Hilfe & Anleitung</title>
+    <style>
+        :root {
+            --bg: #07090f;
+            --panel: rgba(255, 255, 255, 0.06);
+            --panel-strong: rgba(255, 255, 255, 0.11);
+            --ink: #f8fbff;
+            --muted: #aab6c8;
+            --line: rgba(255, 255, 255, 0.16);
+            --cyan: #34d6d2;
+            --green: #1fdf82;
+            --red: #ff4268;
+            --amber: #ffd166;
+            --shadow: 0 28px 80px rgba(0, 0, 0, 0.45);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            color: var(--ink);
+            font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            background:
+                radial-gradient(circle at 18% 12%, rgba(52, 214, 210, 0.24), transparent 32%),
+                radial-gradient(circle at 82% 18%, rgba(255, 66, 104, 0.22), transparent 30%),
+                radial-gradient(circle at 50% 100%, rgba(255, 209, 102, 0.16), transparent 34%),
+                var(--bg);
+        }
+
+        .wrap {
+            width: min(100%, 900px);
+            margin: 0 auto;
+            padding: 28px 20px 80px;
+        }
+
+        header.page_head {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            margin: -28px -20px 22px;
+            padding: 16px 20px;
+            background: rgba(7, 9, 15, 0.82);
+            backdrop-filter: blur(14px);
+            border-bottom: 1px solid var(--line);
+        }
+
+        .page_head h1 {
+            margin: 0;
+            font-size: clamp(1.2rem, 3vw, 1.6rem);
+            font-weight: 900;
+            letter-spacing: 0.01em;
+        }
+
+        .page_head .sub {
+            color: var(--muted);
+            font-size: 0.82rem;
+            font-weight: 700;
+        }
+
+        .back_link {
+            flex: 0 0 auto;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            height: 42px;
+            padding: 0 18px;
+            border-radius: 12px;
+            border: 1px solid rgba(52, 214, 210, 0.4);
+            background: rgba(52, 214, 210, 0.14);
+            color: var(--ink);
+            text-decoration: none;
+            font-weight: 900;
+            font-size: 0.9rem;
+            transition: transform 130ms ease, filter 130ms ease;
+        }
+        .back_link:hover { transform: translateY(-2px); filter: brightness(1.1); }
+
+        .intro {
+            border: 1px solid rgba(52, 214, 210, 0.3);
+            border-radius: 20px;
+            background: linear-gradient(145deg, rgba(8, 60, 72, 0.55), rgba(18, 26, 60, 0.5));
+            padding: 22px 24px;
+            margin-bottom: 26px;
+        }
+        .intro p { margin: 0; color: #dceef1; }
+
+        nav.toc {
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            background: var(--panel);
+            padding: 16px 20px;
+            margin-bottom: 30px;
+        }
+        nav.toc .toc_title {
+            color: var(--muted);
+            font-size: 0.7rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 10px;
+        }
+        nav.toc ol {
+            margin: 0;
+            padding-left: 20px;
+            columns: 2;
+            column-gap: 26px;
+        }
+        @media (max-width: 560px) { nav.toc ol { columns: 1; } }
+        nav.toc li { margin: 4px 0; break-inside: avoid; }
+        nav.toc a { color: var(--cyan); text-decoration: none; font-weight: 700; }
+        nav.toc a:hover { text-decoration: underline; }
+
+        section.card {
+            border: 1px solid var(--line);
+            border-radius: 20px;
+            background: var(--panel);
+            padding: 24px 26px;
+            margin-bottom: 22px;
+            scroll-margin-top: 78px;
+        }
+
+        h2 {
+            margin: 0 0 14px;
+            font-size: 1.28rem;
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        h2 .num {
+            flex: 0 0 auto;
+            display: grid;
+            place-items: center;
+            width: 30px;
+            height: 30px;
+            border-radius: 999px;
+            background: rgba(52, 214, 210, 0.16);
+            border: 1px solid rgba(52, 214, 210, 0.4);
+            color: var(--cyan);
+            font-size: 0.85rem;
+            font-weight: 950;
+        }
+        h3 {
+            margin: 20px 0 8px;
+            font-size: 1.02rem;
+            font-weight: 850;
+            color: #eaf6ff;
+        }
+        p { margin: 8px 0; }
+        ul, ol.steps { margin: 8px 0; padding-left: 22px; }
+        li { margin: 5px 0; }
+
+        strong { color: #ffffff; }
+        .muted { color: var(--muted); }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 12px 0;
+            font-size: 0.92rem;
+        }
+        th, td {
+            text-align: left;
+            padding: 9px 12px;
+            border-bottom: 1px solid var(--line);
+            vertical-align: top;
+        }
+        th {
+            color: var(--muted);
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 900;
+        }
+        td:first-child { white-space: nowrap; font-weight: 800; }
+
+        .pill {
+            display: inline-block;
+            padding: 2px 9px;
+            border-radius: 999px;
+            font-size: 0.78rem;
+            font-weight: 850;
+            border: 1px solid var(--line);
+            background: rgba(255, 255, 255, 0.06);
+        }
+        .pill.green { color: #b7ffd8; border-color: rgba(31,223,130,0.4); background: rgba(31,223,130,0.12); }
+        .pill.amber { color: #ffe9ad; border-color: rgba(255,209,102,0.4); background: rgba(255,209,102,0.12); }
+        .pill.red   { color: #ffc4cf; border-color: rgba(255,66,104,0.4); background: rgba(255,66,104,0.12); }
+        .pill.cyan  { color: #bafffb; border-color: rgba(52,214,210,0.4); background: rgba(52,214,210,0.12); }
+
+        code {
+            font-family: "Cascadia Code", Consolas, "Courier New", monospace;
+            font-size: 0.86em;
+            background: rgba(255, 255, 255, 0.09);
+            border: 1px solid var(--line);
+            border-radius: 6px;
+            padding: 1px 6px;
+        }
+        pre {
+            margin: 12px 0;
+            padding: 16px 18px;
+            border-radius: 14px;
+            background: #05070c;
+            border: 1px solid var(--line);
+            overflow-x: auto;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+        }
+        pre code {
+            background: none;
+            border: 0;
+            padding: 0;
+            font-size: 0.84rem;
+            line-height: 1.55;
+            color: #d6e4f0;
+        }
+        .tok-key { color: var(--cyan); }
+        .tok-str { color: var(--amber); }
+        .tok-bool { color: var(--green); }
+        .tok-tag { color: #ff8fa8; }
+        .tok-com { color: #6b7a90; font-style: italic; }
+
+        .note {
+            display: flex;
+            gap: 12px;
+            border-radius: 14px;
+            padding: 14px 16px;
+            margin: 16px 0;
+            border: 1px solid var(--line);
+            background: rgba(255, 255, 255, 0.05);
+        }
+        .note .ico { flex: 0 0 auto; font-size: 1.15rem; line-height: 1.4; }
+        .note.tip { border-color: rgba(31,223,130,0.35); background: rgba(31,223,130,0.08); }
+        .note.warn { border-color: rgba(255,209,102,0.4); background: rgba(255,209,102,0.08); }
+        .note.info { border-color: rgba(52,214,210,0.35); background: rgba(52,214,210,0.08); }
+        .note p { margin: 0; }
+
+        .demo_btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-width: 70px;
+            height: 40px;
+            padding: 0 16px;
+            border-radius: 12px;
+            font-weight: 950;
+            color: white;
+            font-size: 0.9rem;
+            vertical-align: middle;
+        }
+        .demo_true { background: linear-gradient(135deg, #16b978, #1fdf82); }
+        .demo_false { background: linear-gradient(135deg, #dc3157, #ff4268); }
+        .demo_quattro { background: rgba(255,255,255,0.08); border: 2px solid var(--line); color: var(--ink); }
+
+        footer {
+            margin-top: 30px;
+            text-align: center;
+            color: var(--muted);
+            font-size: 0.82rem;
+        }
+        footer a { color: var(--cyan); text-decoration: none; }
+
+        .kbd {
+            display: inline-block;
+            padding: 1px 8px;
+            border-radius: 6px;
+            border: 1px solid var(--line);
+            background: rgba(255,255,255,0.08);
+            font-size: 0.82rem;
+            font-weight: 800;
+        }
+    </style>
+</head>
+<body>
+<div class="wrap">
+
+    <header class="page_head">
+        <div>
+            <h1>Quiz&nbsp;·&nbsp;Hilfe &amp; Anleitung</h1>
+            <div class="sub">Alle Funktionen erklärt – und wie du eigene Themen anlegst</div>
+        </div>
+        <a class="back_link" href="index.html">← Zurück zum Quiz</a>
+    </header>
+
+    <div class="intro">
+        <p>Die Quiz-App stellt dir Fragen, die du per Fingertipp oder Mausklick beantwortest.
+        Du wählst eine <strong>Quelle</strong>, einen <strong>Modus</strong>, ein <strong>Thema</strong>
+        und den <strong>Schwierigkeitsgrad</strong> – und legst los. Gespielt werden kann allein,
+        gegen die Fragen der Open&nbsp;Trivia&nbsp;DB oder gemeinsam im <strong>Online-Modus</strong>
+        gegen Freunde. Diese Seite erklärt jede Einstellung, das Spielfeld und wie die Fragenkataloge
+        aufgebaut sind, damit du neue Themen ergänzen kannst.</p>
+    </div>
+
+    <nav class="toc">
+        <div class="toc_title">Inhalt</div>
+        <ol>
+            <li><a href="#schnellstart">Schnellstart</a></li>
+            <li><a href="#bedienleiste">Die Bedienleiste</a></li>
+            <li><a href="#spielfeld">Das Spielfeld</a></li>
+            <li><a href="#modi">Modi: Duo &amp; Quattro</a></li>
+            <li><a href="#quellen">Quellen im Detail</a></li>
+            <li><a href="#online">Online gegeneinander spielen</a></li>
+            <li><a href="#audio">Audio &amp; Sprachausgabe</a></li>
+            <li><a href="#mobil">Bedienung am Handy</a></li>
+            <li><a href="#themen-anlegen">Neue Themen anlegen</a></li>
+            <li><a href="#themen-erweitern">Bestehende Themen erweitern</a></li>
+            <li><a href="#tools">Kataloge prüfen &amp; veröffentlichen</a></li>
+            <li><a href="#probleme">Probleme &amp; Lösungen</a></li>
+        </ol>
+    </nav>
+
+    <!-- 1 -->
+    <section class="card" id="schnellstart">
+        <h2><span class="num">1</span>Schnellstart</h2>
+        <ol class="steps">
+            <li>In der <strong>Bedienleiste</strong> (oben bzw. über das Zahnrad <span class="kbd">⚙</span> am Handy) eine <strong>Quelle</strong> wählen – für den Anfang <span class="pill cyan">Lokal</span>.</li>
+            <li>Einen <strong>Modus</strong> festlegen: <span class="pill">Duo</span> (Richtig/Falsch) oder <span class="pill">Quattro</span> (vier Antworten).</li>
+            <li>Ein <strong>Thema</strong>, den <strong>Level</strong> und die <strong>Anzahl der Fragen</strong> auswählen.</li>
+            <li>Auf <span class="pill cyan">Starten</span> tippen – die Fragen werden zufällig gemischt.</li>
+            <li>Antwort antippen. Die App zeigt sofort, ob sie richtig war, und zählt den Punktestand hoch.</li>
+            <li>Am Ende siehst du dein Ergebnis in Prozent. <span class="pill cyan">Neu starten</span> spielt eine neue, frisch gemischte Runde.</li>
+        </ol>
+        <div class="note tip"><span class="ico">💡</span><p>Jede Änderung an Thema, Level oder Anzahl setzt die Runde zurück. Tippe danach erneut auf <strong>Neu starten</strong>.</p></div>
+    </section>
+
+    <!-- 2 -->
+    <section class="card" id="bedienleiste">
+        <h2><span class="num">2</span>Die Bedienleiste</h2>
+        <p>Die Bedienleiste enthält alle Einstellungen. Am Desktop ist sie dauerhaft sichtbar,
+        am Handy blendest du sie mit dem Zahnrad <span class="kbd">⚙</span> ein und aus.</p>
+        <table>
+            <thead><tr><th>Einstellung</th><th>Optionen</th><th>Bedeutung</th></tr></thead>
+            <tbody>
+                <tr>
+                    <td>Quelle</td>
+                    <td>Lokal · Open&nbsp;Trivia&nbsp;DB · Online</td>
+                    <td>Woher die Fragen kommen. <em>Lokal</em> = eigene Kataloge, <em>OTDB</em> = weltweite Online-Datenbank (englisch), <em>Online</em> = Mehrspieler-Raum. Details in <a href="#quellen">Abschnitt&nbsp;5</a>.</td>
+                </tr>
+                <tr>
+                    <td>Modus</td>
+                    <td>Duo · Quattro</td>
+                    <td><em>Duo</em> stellt Aussagen, die richtig oder falsch sind. <em>Quattro</em> stellt Fragen mit vier Antworten (A–D). Details in <a href="#modi">Abschnitt&nbsp;4</a>.</td>
+                </tr>
+                <tr>
+                    <td>Thema</td>
+                    <td>je nach vorhandenen Katalogen</td>
+                    <td>Der Fragenkatalog. Die Liste wird automatisch aus den vorhandenen Dateien im Quiz-Ordner erzeugt und alphabetisch sortiert.</td>
+                </tr>
+                <tr>
+                    <td>Kategorie</td>
+                    <td>nur bei Open&nbsp;Trivia&nbsp;DB</td>
+                    <td>Ersetzt bei OTDB das Thema-Feld. „Alle Kategorien“ oder eine der von OTDB gelieferten Rubriken.</td>
+                </tr>
+                <tr>
+                    <td>Level</td>
+                    <td>Gemischt · Leicht · Mittel · Schwer</td>
+                    <td>Filtert die Fragen nach Schwierigkeitsgrad. <em>Gemischt</em> nutzt alle Grade.</td>
+                </tr>
+                <tr>
+                    <td>Fragen</td>
+                    <td>10 · 20 · 30 · 40 · 50 · 100</td>
+                    <td>Wie viele Fragen die Runde maximal hat. Gibt es weniger passende Fragen, werden entsprechend weniger gestellt.</td>
+                </tr>
+                <tr>
+                    <td>Audio</td>
+                    <td>Sprache&nbsp;+&nbsp;Ton · Sprache · Ton · Aus</td>
+                    <td>Sprachausgabe der Fragen und/oder Signaltöne bei richtig/falsch. Details in <a href="#audio">Abschnitt&nbsp;7</a>.</td>
+                </tr>
+                <tr>
+                    <td>Starten</td>
+                    <td>Schaltfläche</td>
+                    <td>Beginnt die Runde. Danach heißt die Schaltfläche <em>Neu starten</em> und mischt bei jedem Klick neu.</td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <!-- 3 -->
+    <section class="card" id="spielfeld">
+        <h2><span class="num">3</span>Das Spielfeld</h2>
+        <p>Während des Spiels zeigt die Oberfläche folgende Elemente:</p>
+        <ul>
+            <li><strong>Punktestand</strong> (Pille oben rechts): Anzahl richtiger Antworten – im Online-Modus stattdessen die erspielten Punkte.</li>
+            <li><strong>Fortschrittsbalken</strong>: zeigt „Frage&nbsp;X&nbsp;/&nbsp;Y“ und wie weit die Runde ist.</li>
+            <li><strong>Fragefeld</strong>: die aktuelle Aussage (Duo) bzw. Frage (Quattro), oben mit einem Etikett wie „Frage&nbsp;3“.</li>
+            <li><strong>Antwort-Schaltflächen</strong>: bei Duo zwei, bei Quattro vier.</li>
+            <li><strong>Rückmeldungszeile</strong>: Text und Symbol, das „Richtig!“ oder „Falsch!“ meldet.</li>
+        </ul>
+        <h3>Farben &amp; Rückmeldung</h3>
+        <p>Nach dem Antippen reagiert die App sofort visuell:</p>
+        <ul>
+            <li><span class="demo_btn demo_true">✓&nbsp;Richtig</span> &nbsp;Deine korrekte Wahl pulsiert grün, die anderen werden abgedunkelt.</li>
+            <li><span class="demo_btn demo_false">×&nbsp;Falsch</span> &nbsp;Eine falsche Wahl wackelt rot – zusätzlich wird die tatsächlich richtige Antwort hervorgehoben.</li>
+        </ul>
+        <p class="muted">Nach kurzer Zeit erscheint automatisch die nächste Frage. Die Antwort-Schaltflächen sind während der Auflösung gesperrt, damit keine Doppel-Eingabe passiert.</p>
+    </section>
+
+    <!-- 4 -->
+    <section class="card" id="modi">
+        <h2><span class="num">4</span>Modi: Duo &amp; Quattro</h2>
+        <h3>Duo – Richtig oder Falsch</h3>
+        <p>Es erscheint eine <strong>Aussage</strong>. Du entscheidest mit
+        <span class="demo_btn demo_true">✓&nbsp;Richtig</span> oder
+        <span class="demo_btn demo_false">×&nbsp;Falsch</span>, ob sie zutrifft.
+        Duo-Kataloge heißen <code>td_[thema].htm</code> (td = <em>true/duo</em>).</p>
+        <h3>Quattro – eine von vier</h3>
+        <p>Es erscheint eine <strong>Frage</strong> mit vier Antwortmöglichkeiten
+        <span class="pill">A</span> <span class="pill">B</span> <span class="pill">C</span> <span class="pill">D</span>.
+        Genau eine ist richtig. Quattro-Kataloge heißen <code>tq_[thema].htm</code> (tq = <em>true/quattro</em>).</p>
+        <div class="note info"><span class="ico">ℹ️</span><p>Nicht jedes Thema gibt es in beiden Modi. Die Themenliste zeigt immer nur die Kataloge, die zum gewählten Modus passen.</p></div>
+    </section>
+
+    <!-- 5 -->
+    <section class="card" id="quellen">
+        <h2><span class="num">5</span>Quellen im Detail</h2>
+        <h3><span class="pill cyan">Lokal</span> – die eigenen Kataloge</h3>
+        <p>Die Fragen stammen aus den Katalogdateien im Quiz-Ordner (deutschsprachig, redaktionell gepflegt).
+        Dies ist die Standardquelle und funktioniert ohne Internet.</p>
+
+        <h3><span class="pill amber">Open Trivia DB</span> – weltweite Fragen</h3>
+        <p>Zieht Fragen live von <code>opentdb.com</code>. Statt eines Themas wählst du eine <strong>Kategorie</strong>.
+        Level und Anzahl werden an die Datenbank weitergereicht (maximal 50 Fragen pro Runde).
+        Die Fragen sind <strong>englischsprachig</strong>; die Sprachausgabe stellt dafür automatisch auf Englisch um.</p>
+        <div class="note warn"><span class="ico">⚠️</span><p>Für diese Quelle ist eine Internetverbindung nötig. Sind für die gewählte Kombination zu wenige Fragen vorhanden, meldet die App das und du passt den Filter an.</p></div>
+
+        <h3><span class="pill green">Online</span> – gegeneinander spielen</h3>
+        <p>Mehrere Personen beantworten dieselben Fragen gleichzeitig und treten in einer Rangliste
+        gegeneinander an. Ausführlich im nächsten Abschnitt.</p>
+    </section>
+
+    <!-- 6 -->
+    <section class="card" id="online">
+        <h2><span class="num">6</span>Online gegeneinander spielen</h2>
+        <p>Im Online-Modus eröffnet eine Person einen Raum (<strong>Host</strong>), die anderen treten mit einem
+        <strong>Raumcode</strong> bei. Der Host bestimmt Thema, Level und Fragenanzahl.</p>
+        <h3>Als Host einen Raum eröffnen</h3>
+        <ol class="steps">
+            <li>Quelle auf <strong>Online</strong> stellen, gewünschtes Thema wählen.</li>
+            <li>Im Fenster <strong>„Raum erstellen“</strong> wählen, Namen eingeben und bestätigen.</li>
+            <li>Der <strong>6-stellige Raumcode</strong> erscheint – gib ihn den Mitspielern weiter.</li>
+            <li>Sobald alle in der Spielerliste stehen, auf <strong>„Spiel starten“</strong> tippen.</li>
+        </ol>
+        <h3>Als Gast beitreten</h3>
+        <ol class="steps">
+            <li>Quelle auf <strong>Online</strong> stellen, <strong>„Raum beitreten“</strong> wählen.</li>
+            <li>Raumcode und deinen Namen eingeben, bestätigen – du landest im Warteraum, bis der Host startet.</li>
+        </ol>
+        <h3>Ablauf &amp; Punkte</h3>
+        <ul>
+            <li>Jede Frage hat einen <strong>Countdown</strong> (Zeitbalken oben). Wer schneller richtig antwortet, bekommt mehr Punkte.</li>
+            <li><strong>1.000 Punkte</strong> Basis pro richtiger Antwort plus bis zu <strong>500 Punkte</strong> Schnelligkeitsbonus.</li>
+            <li>Nach jeder Frage siehst du den <strong>Zwischenstand</strong> aller Mitspieler.</li>
+            <li>Am Ende zeigt die <strong>Rangliste</strong> die Platzierung (🥇 🥈 🥉). Mit <strong>„Nochmal“</strong> geht es in eine neue Runde, <strong>„Verlassen“</strong> beendet den Raum.</li>
+        </ul>
+        <div class="note info"><span class="ico">ℹ️</span><p>Der Online-Modus benötigt den Quiz-Server. Lokal läuft er unter <code>localhost:3010</code>, im Web über den bereitgestellten Server. Ist er nicht erreichbar, meldet die App „Server nicht erreichbar“.</p></div>
+    </section>
+
+    <!-- 7 -->
+    <section class="card" id="audio">
+        <h2><span class="num">7</span>Audio &amp; Sprachausgabe</h2>
+        <table>
+            <thead><tr><th>Einstellung</th><th>Wirkung</th></tr></thead>
+            <tbody>
+                <tr><td>Sprache&nbsp;+&nbsp;Ton</td><td>Die Frage wird vorgelesen <em>und</em> es erklingt ein Signalton bei richtig/falsch.</td></tr>
+                <tr><td>Sprache</td><td>Nur Vorlesen der Frage und der Rückmeldung, keine Töne.</td></tr>
+                <tr><td>Ton</td><td>Nur Signaltöne bei richtig/falsch, kein Vorlesen.</td></tr>
+                <tr><td>Aus</td><td>Kein Ton, keine Sprachausgabe.</td></tr>
+            </tbody>
+        </table>
+        <p class="muted">Die Sprachausgabe nutzt die im Gerät/Browser vorhandenen Stimmen. Bei der Open&nbsp;Trivia&nbsp;DB werden die englischen Fragen automatisch auf Englisch vorgelesen.</p>
+    </section>
+
+    <!-- 8 -->
+    <section class="card" id="mobil">
+        <h2><span class="num">8</span>Bedienung am Handy</h2>
+        <ul>
+            <li>Die Bedienleiste ist am Handy eingeklappt. Mit dem Zahnrad <span class="kbd">⚙</span> oben öffnest du sie.</li>
+            <li>Nach der Auswahl tippst du auf <strong>„Übernehmen“</strong>; die Leiste schließt sich und das Spielfeld rückt in den Blick.</li>
+            <li>Auf schmalen Bildschirmen stehen die Antworten untereinander statt nebeneinander.</li>
+        </ul>
+    </section>
+
+    <!-- 9 -->
+    <section class="card" id="themen-anlegen">
+        <h2><span class="num">9</span>Neue Themen anlegen</h2>
+        <p>Ein Thema ist eine einzelne HTML-Datei im Quiz-Ordner. Die App durchsucht den Ordner beim Start,
+        erkennt alle passenden Dateien am <strong>Namensmuster</strong> und baut daraus die Themenliste –
+        du musst nichts weiter registrieren.</p>
+        <table>
+            <thead><tr><th>Modus</th><th>Dateiname</th><th>Beispiel</th></tr></thead>
+            <tbody>
+                <tr><td>Duo</td><td><code>td_[thema].htm</code></td><td><code>td_geografie.htm</code></td></tr>
+                <tr><td>Quattro</td><td><code>tq_[thema].htm</code></td><td><code>tq_geografie.htm</code></td></tr>
+            </tbody>
+        </table>
+        <p class="muted">Der Anzeigename in der App entsteht automatisch aus dem Dateinamen: Präfix und Endung entfallen,
+        Binde-/Unterstriche werden zu Leerzeichen, Wörter groß geschrieben (<code>td_alte_geschichte.htm</code> → „Alte Geschichte“).
+        Verwende im Dateinamen nur Kleinbuchstaben ohne Umlaute (z.&nbsp;B. <code>ae</code> statt <code>ä</code>).</p>
+
+        <h3>Aufbau einer Datei</h3>
+        <p>Jede Katalogdatei enthält genau ein <code>&lt;div id="question_data"&gt;</code> mit einer
+        <strong>JSON-Liste</strong> von Fragen. Mehr braucht die Datei nicht.</p>
+
+        <h3>Duo-Katalog (Richtig/Falsch)</h3>
+        <pre><code><span class="tok-tag">&lt;div id="question_data"&gt;</span>
+[
+  {
+    <span class="tok-key">"aussage"</span>: <span class="tok-str">"Der Mount Everest ist der höchste Berg der Erde."</span>,
+    <span class="tok-key">"antwort"</span>: <span class="tok-bool">true</span>,
+    <span class="tok-key">"grad"</span>: <span class="tok-str">"leicht"</span>
+  },
+  {
+    <span class="tok-key">"aussage"</span>: <span class="tok-str">"Die Donau fließt durch Spanien."</span>,
+    <span class="tok-key">"antwort"</span>: <span class="tok-bool">false</span>,
+    <span class="tok-key">"grad"</span>: <span class="tok-str">"mittel"</span>
+  }
+]
+<span class="tok-tag">&lt;/div&gt;</span></code></pre>
+        <table>
+            <thead><tr><th>Feld</th><th>Typ</th><th>Regel</th></tr></thead>
+            <tbody>
+                <tr><td>aussage</td><td>Text</td><td>Eine Behauptung (kein Fragesatz), endet mit <code>.</code> oder <code>!</code></td></tr>
+                <tr><td>antwort</td><td>Wahrheitswert</td><td><code>true</code>, wenn die Aussage stimmt, sonst <code>false</code></td></tr>
+                <tr><td>grad</td><td>Text</td><td><code>"leicht"</code>, <code>"mittel"</code> oder <code>"schwer"</code></td></tr>
+            </tbody>
+        </table>
+
+        <h3>Quattro-Katalog (vier Antworten)</h3>
+        <pre><code><span class="tok-tag">&lt;div id="question_data"&gt;</span>
+[
+  {
+    <span class="tok-key">"frage"</span>: <span class="tok-str">"Welcher Fluss fließt durch Wien?"</span>,
+    <span class="tok-key">"antworten"</span>: [<span class="tok-str">"Donau"</span>, <span class="tok-str">"Rhein"</span>, <span class="tok-str">"Elbe"</span>, <span class="tok-str">"Main"</span>],
+    <span class="tok-key">"richtig"</span>: 0,
+    <span class="tok-key">"grad"</span>: <span class="tok-str">"leicht"</span>
+  }
+]
+<span class="tok-tag">&lt;/div&gt;</span></code></pre>
+        <table>
+            <thead><tr><th>Feld</th><th>Typ</th><th>Regel</th></tr></thead>
+            <tbody>
+                <tr><td>frage</td><td>Text</td><td>Ein vollständiger Fragesatz, endet mit <code>?</code></td></tr>
+                <tr><td>antworten</td><td>Liste</td><td>Genau vier verschiedene Texte</td></tr>
+                <tr><td>richtig</td><td>Zahl</td><td>Position der richtigen Antwort: <code>0</code>=A, <code>1</code>=B, <code>2</code>=C, <code>3</code>=D</td></tr>
+                <tr><td>grad</td><td>Text</td><td><code>"leicht"</code>, <code>"mittel"</code> oder <code>"schwer"</code></td></tr>
+            </tbody>
+        </table>
+
+        <div class="note tip"><span class="ico">💡</span><p>Am einfachsten kopierst du eine vorhandene Datei (z.&nbsp;B. <code>td_tiere.htm</code>), benennst sie um und tauschst die Fragen aus. So bleibt die Struktur garantiert korrekt.</p></div>
+        <div class="note warn"><span class="ico">⚠️</span><p>Achte auf gültiges JSON: Kommas zwischen den Einträgen, <strong>kein</strong> Komma nach dem letzten Eintrag, und Texte immer in <code>"doppelten Anführungszeichen"</code>. Ein einziger Fehler verhindert das Laden des gesamten Katalogs.</p></div>
+    </section>
+
+    <!-- 10 -->
+    <section class="card" id="themen-erweitern">
+        <h2><span class="num">10</span>Bestehende Themen erweitern</h2>
+        <p>Um einem Thema neue Fragen hinzuzufügen, öffnest du die passende Datei
+        (<code>td_[thema].htm</code> oder <code>tq_[thema].htm</code>) und fügst innerhalb der eckigen
+        Klammern <code>[ … ]</code> weitere Einträge an:</p>
+        <ol class="steps">
+            <li>Setze hinter den letzten Eintrag ein <strong>Komma</strong>.</li>
+            <li>Füge einen neuen Block im gleichen Aufbau ein (siehe <a href="#themen-anlegen">Abschnitt&nbsp;9</a>).</li>
+            <li>Achte darauf, dass nach dem allerletzten Eintrag <strong>kein</strong> Komma steht.</li>
+            <li>Speichern, App neu laden – die zusätzlichen Fragen stehen sofort zur Verfügung.</li>
+        </ol>
+        <pre><code>  {
+    <span class="tok-key">"aussage"</span>: <span class="tok-str">"Ein Pinguin ist ein Vogel."</span>,
+    <span class="tok-key">"antwort"</span>: <span class="tok-bool">true</span>,
+    <span class="tok-key">"grad"</span>: <span class="tok-str">"leicht"</span>
+  }<span class="tok-com">,   ← Komma anfügen, wenn ein weiterer Eintrag folgt</span>
+  {
+    <span class="tok-key">"aussage"</span>: <span class="tok-str">"Ein Wal ist ein Fisch."</span>,
+    <span class="tok-key">"antwort"</span>: <span class="tok-bool">false</span>,
+    <span class="tok-key">"grad"</span>: <span class="tok-str">"mittel"</span>
+  }</code></pre>
+        <div class="note tip"><span class="ico">💡</span><p>Verteile die Schwierigkeitsgrade möglichst gleichmäßig und vermeide doppelte oder fast gleiche Fragen. Bei Duo hält man das Verhältnis von <em>richtig</em> zu <em>falsch</em> ausgewogen (etwa 40–60&nbsp;%).</p></div>
+    </section>
+
+    <!-- 11 -->
+    <section class="card" id="tools">
+        <h2><span class="num">11</span>Kataloge prüfen &amp; veröffentlichen</h2>
+        <p>Für die Pflege der Kataloge gibt es Hilfswerkzeuge. Sie sind optional – Themen funktionieren
+        auch, wenn du die Dateien nur von Hand bearbeitest –, ersparen aber Tippfehler.</p>
+
+        <h3>Struktur prüfen</h3>
+        <p>Das Werkzeug <code>scripts/quiz_tool.py</code> prüft JSON, Pflichtfelder, Anzahl und Duplikate:</p>
+        <pre><code><span class="tok-com"># einen Katalog prüfen (mit Mindestanzahl)</span>
+python -B scripts\quiz_tool.py duo geografie check count:100
+
+<span class="tok-com"># zusätzlich Sprache prüfen (Rechtschreibung, Satzzeichen)</span>
+python -B scripts\quiz_tool.py duo geografie check --lint
+
+<span class="tok-com"># alle Kataloge auf einmal</span>
+python -B scripts\quiz_tool.py all check</code></pre>
+
+        <h3>Mit dem <code>/quiz</code>-Assistenten</h3>
+        <p>In Claude&nbsp;Code erzeugt und prüft der <code>/quiz</code>-Befehl Kataloge automatisch:</p>
+        <table>
+            <thead><tr><th>Befehl</th><th>Wirkung</th></tr></thead>
+            <tbody>
+                <tr><td><code>/quiz duo [thema] create</code></td><td>Neuen Duo-Katalog mit 100 Fragen erzeugen</td></tr>
+                <tr><td><code>/quiz quattro [thema] create</code></td><td>Neuen Quattro-Katalog mit 100 Fragen erzeugen</td></tr>
+                <tr><td><code>/quiz [duo|quattro] [thema] check</code></td><td>Katalog strukturell prüfen</td></tr>
+                <tr><td><code>/quiz all check-lang</code></td><td>Alle Kataloge sprachlich prüfen</td></tr>
+                <tr><td><code>/quiz publish</code></td><td>App inkl. aller Kataloge auf den Webserver kopieren</td></tr>
+            </tbody>
+        </table>
+
+        <h3>Veröffentlichen</h3>
+        <p>Neue oder geänderte Kataloge werden mit <code>/quiz publish</code> (bzw. dem Skript
+        <code>publish-to-weberding.ps1</code>) auf den Webserver übertragen. Erst danach sind sie online sichtbar.</p>
+    </section>
+
+    <!-- 12 -->
+    <section class="card" id="probleme">
+        <h2><span class="num">12</span>Probleme &amp; Lösungen</h2>
+        <table>
+            <thead><tr><th>Symptom</th><th>Ursache &amp; Lösung</th></tr></thead>
+            <tbody>
+                <tr><td>„Fehler beim Laden!“</td><td>Die Katalogdatei enthält ungültiges JSON (fehlendes/zu viel Komma, falsche Anführungszeichen). Datei prüfen – ideal mit <code>quiz_tool.py … check</code>.</td></tr>
+                <tr><td>„Keine Fragen für diese Auswahl.“</td><td>Für das gewählte Level gibt es keine Fragen. Level auf <em>Gemischt</em> stellen oder mehr Fragen des Grades ergänzen.</td></tr>
+                <tr><td>Neues Thema fehlt in der Liste</td><td>Dateiname prüfen: muss mit <code>td_</code> (Duo) bzw. <code>tq_</code> (Quattro) beginnen und auf <code>.htm</code> enden. Modus passend wählen. Seite neu laden.</td></tr>
+                <tr><td>„Server nicht erreichbar“ (Online)</td><td>Der Quiz-Server läuft nicht bzw. es besteht keine Verbindung. Server starten oder Internet prüfen.</td></tr>
+                <tr><td>Keine Sprachausgabe</td><td>Audio steht auf <em>Ton</em> oder <em>Aus</em>, oder der Browser hat keine Stimmen installiert. Einstellung auf <em>Sprache&nbsp;+&nbsp;Ton</em> stellen.</td></tr>
+                <tr><td>Open&nbsp;Trivia&nbsp;DB liefert nichts</td><td>Keine Internetverbindung oder zu enger Filter. Kategorie/Level lockern; OTDB liefert maximal 50&nbsp;Fragen pro Runde.</td></tr>
+            </tbody>
+        </table>
+    </section>
+
+    <footer>
+        <p>Quiz-App&nbsp;·&nbsp;<a href="index.html">Zurück zum Quiz</a>&nbsp;·&nbsp;Entwicklungsdetails in <a href="Anpassungen.html">Anpassungen</a>&nbsp;·&nbsp;<a class="legal-ds" href="https://weberding.de/datenschutz.html" target="_blank" rel="noopener noreferrer">Datenschutz</a>&nbsp;·&nbsp;<a class="legal-imp" href="https://weberding.de/impressum.html" target="_blank" rel="noopener noreferrer">Impressum</a><br>© 2026 Christian Weber. All rights reserved unless explicitly licensed otherwise.</p>
+    </footer>
+    <script>
+        // Pflichtangaben hostabhängig (Weiche): Standard weberding.de; unter
+        // pbc-erding.de gelten dessen Datenschutz/Impressum.
+        (function () {
+            if (/(^|\.)pbc-erding\.de$/.test(location.hostname)) {
+                document.querySelectorAll('a.legal-ds').forEach(function (a) { a.href = 'https://www.pbc-erding.de/datenschutz/'; });
+                document.querySelectorAll('a.legal-imp').forEach(function (a) { a.href = 'https://www.pbc-erding.de/impressum/'; });
+            }
+        })();
+    </script>
+
+</div>
+</body>
+</html>

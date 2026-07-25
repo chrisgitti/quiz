@@ -1,4 +1,11 @@
 <!DOCTYPE html>
+<!--
+  Quiz-App – Duo & Quattro
+
+  Copyright (c) 2026 Christian Weber.
+  Original development repository and history retained by the author.
+  All rights reserved unless explicitly licensed otherwise.
+-->
 <html lang="de">
 <head>
     <meta charset="UTF-8">
@@ -53,9 +60,31 @@
 
         .top_bar {
             display: grid;
-            grid-template-columns: minmax(0, 1fr) auto auto;
+            grid-template-columns: minmax(0, 1fr) auto auto auto;
             align-items: center;
             gap: 16px;
+        }
+
+        .help_button {
+            width: 44px;
+            height: 44px;
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--ink);
+            cursor: pointer;
+            font-size: 1.2rem;
+            font-weight: 900;
+            line-height: 1;
+            display: grid;
+            place-items: center;
+            text-decoration: none;
+            transition: transform 150ms ease, filter 150ms ease;
+        }
+
+        .help_button:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.1);
         }
 
         .app_title {
@@ -519,7 +548,7 @@
             }
 
             .top_bar {
-                grid-template-columns: minmax(0, 1fr) auto auto;
+                grid-template-columns: minmax(0, 1fr) auto auto auto auto;
                 gap: 8px;
             }
 
@@ -668,7 +697,7 @@
 
         @media (max-width: 520px) {
             .top_bar {
-                grid-template-columns: minmax(0, 1fr) auto auto;
+                grid-template-columns: minmax(0, 1fr) auto auto auto;
             }
 
             .score_pill {
@@ -728,6 +757,7 @@
             <div class="score_value" id="score_wert">0</div>
             <div class="score_label" id="score_label">Richtig</div>
         </div>
+        <a class="help_button" href="Hilfe.html" title="Hilfe & Anleitung" aria-label="Hilfe">?</a>
         <button id="btn_start" class="start_button" onclick="starte_quiz()">Starten</button>
         <button class="mobile_settings_button" id="btn_settings_toggle" onclick="toggle_einstellungen()" aria-controls="control_dock" aria-expanded="false" title="Einstellungen">⚙</button>
     </header>
@@ -854,6 +884,21 @@
         <button class="btn_online_verlassen" onclick="online_beenden()">✕ Verlassen</button>
     </div>
     </div>
+    <div id="copyright_stamp" style="text-align:center;font-size:10px;opacity:0.45;margin-top:6px;">© 2026 Christian Weber</div>
+    <div id="legal_links" style="text-align:center;font-size:10px;opacity:0.6;margin-top:2px;">
+        <a class="legal-ds" href="https://weberding.de/datenschutz.html" target="_blank" rel="noopener noreferrer" style="color:inherit;">Datenschutz</a> ·
+        <a class="legal-imp" href="https://weberding.de/impressum.html" target="_blank" rel="noopener noreferrer" style="color:inherit;">Impressum</a>
+    </div>
+    <script>
+        // Pflichtangaben hostabhängig (Weiche): Standard weberding.de (dort läuft die
+        // Voll-Version); unter pbc-erding.de gelten dessen Datenschutz/Impressum.
+        (function () {
+            if (/(^|\.)pbc-erding\.de$/.test(location.hostname)) {
+                document.querySelectorAll('a.legal-ds').forEach(function (a) { a.href = 'https://www.pbc-erding.de/datenschutz/'; });
+                document.querySelectorAll('a.legal-imp').forEach(function (a) { a.href = 'https://www.pbc-erding.de/impressum/'; });
+            }
+        })();
+    </script>
 </main>
 
 <div id="online_overlay" class="online_overlay" style="display:none">

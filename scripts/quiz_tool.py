@@ -209,7 +209,7 @@ def validate(questions, path, min_count=None, require_100=False, lint=False):
 # ---------------------------------------------------------------------------
 
 #: Dateimuster, die in out/ kopiert werden (relativ zu ROOT)
-_WEB_FILES = ["index.html", "Anpassungen.html"]
+_WEB_FILES = ["index.html", "Anpassungen.html", "Hilfe.html"]
 _WEB_GLOBS = ["td_*.htm", "tq_*.htm", "*.mp3"]
 _WEB_DIRS  = ["media"]
 

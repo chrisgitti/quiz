@@ -559,7 +559,7 @@ python -B scripts\quiz_tool.py all check --lint   # + Sprachlint</code></pre>
 
   <details class="group" open>
     <summary>
-      <span class="group-label">Phasen 1–13</span>
+      <span class="group-label">Phasen 1–14</span>
       <span class="line"></span>
     </summary>
 
@@ -998,6 +998,47 @@ python -B scripts\quiz_tool.py all check --lint   # + Sprachlint</code></pre>
           <tr><td><code>td_poolbillard.htm</code></td><td>100 Fragen</td><td>134 Fragen</td><td>+34 Duo-Aussagen</td></tr>
         </table>
         <p>Für den Duo-Katalog wurde pro Quattro-Frage je eine wahre Aussage (korrekte Antwort) und eine falsche Aussage (eine der Fehlantworten) erzeugt.</p>
+      </div>
+    </details>
+
+    <hr>
+
+    <!-- Phase 14 -->
+    <details class="phase">
+      <summary><span class="summary-text">Phase 14 – Poolbillard-Kataloge bereinigt &amp; Distraktoren verbessert <span class="date">(23. Mai 2026)</span></span></summary>
+      <div class="phase-body">
+        <p>Beide Poolbillard-Kataloge wurden nach einer Erweiterungsrunde strukturell geprüft und inhaltlich verfeinert.</p>
+
+        <h3>14.1&nbsp;&nbsp;Formatfehler in tq_poolbillard.htm behoben</h3>
+        <p><strong>Datei:</strong> <code>tq_poolbillard.htm</code></p>
+        <p>Zwei Formatfehler wurden korrigiert:</p>
+        <table>
+          <tr><th>Position</th><th>Vorher</th><th>Nachher</th></tr>
+          <tr><td>Frage 32, Option B</td><td><code>"14/1 endlos"</code></td><td><code>"14.1 endlos"</code></td></tr>
+          <tr><td>Frage 58, Option D</td><td><code>"verschiedene Kugeln"</code></td><td><code>"Verschiedene Kugeln"</code></td></tr>
+        </table>
+
+        <h3>14.2&nbsp;&nbsp;Antwortbalance in td_poolbillard.htm korrigiert</h3>
+        <p><strong>Datei:</strong> <code>td_poolbillard.htm</code></p>
+        <p>Die Antwortbalance lag bei 64 % <code>true</code> (89 richtig / 50 falsch) und damit über der Zielobergrenze von 60 %. Es wurden 10 neue <code>false</code>-Aussagen ergänzt.</p>
+        <table>
+          <tr><th>Katalog</th><th>Vorher</th><th>Nachher</th></tr>
+          <tr><td>Fragen gesamt</td><td>139</td><td>149</td></tr>
+          <tr><td>true-Anteil</td><td>64 %</td><td>59,7 %</td></tr>
+        </table>
+        <p>Neue Themen: Maßeinheiten, Tischlänge, Kugelfarben, 8-Ball-Aufbau, Safety-Regeln, Massé-Winkel, Push-Out-Gültigkeit, BBV-Ausspielziele.</p>
+
+        <h3>14.3&nbsp;&nbsp;Fragetext und einzelne Optionen in tq_poolbillard.htm angepasst</h3>
+        <p><strong>Datei:</strong> <code>tq_poolbillard.htm</code></p>
+        <ul>
+          <li>Frage „Mosconi Cup – nervenstark": Frageformulierung grammatisch korrigiert</li>
+          <li>Frage „Push Out": Option C von vager Spaß-Option auf regelnahe Fehloption geändert</li>
+          <li>Frage „Squirt/Deflection": Option C durch physikalisch plausible Fehloption ersetzt</li>
+        </ul>
+
+        <h3>14.4&nbsp;&nbsp;Spaß-Distraktoren durch plausible Fehlantworten ersetzt</h3>
+        <p><strong>Datei:</strong> <code>tq_poolbillard.htm</code></p>
+        <p>14 offensichtliche Witz-Optionen (z. B. „Die Objektkugel wird magnetisch", „Das Fenster im Vereinsheim steht offen", „Die Kreide verdampft") wurden durch sachlich klingende, aber inhaltlich falsche Alternativen ersetzt. Betroffen waren 13 Fragen zu Spielregeln, Stoßtechnik, Ausrüstung und Mosconi Cup.</p>
       </div>
     </details>
 

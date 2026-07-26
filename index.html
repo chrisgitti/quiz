@@ -993,13 +993,13 @@
             { datei: 'td_deutsch.htm', titel: 'Deutsch' },
             { datei: 'td_geschichte.htm', titel: 'Geschichte' },
             { datei: 'td_pflanzen.htm', titel: 'Pflanzen' },
-            { datei: 'td_poolbillardregeln.htm', titel: 'Poolbillardregeln' },
+            { datei: 'td_poolbillard.htm', titel: 'Poolbillard' },
             { datei: 'td_society.htm', titel: 'Society' },
             { datei: 'td_tiere.htm', titel: 'Tiere' }
         ],
         quattro: [
             { datei: 'tq_auswahlverfahren.htm', titel: 'Auswahlverfahren' },
-            { datei: 'tq_poolbillardregeln.htm', titel: 'Poolbillardregeln' }
+            { datei: 'tq_poolbillard.htm', titel: 'Poolbillard' }
         ]
     };
 
@@ -1561,6 +1561,13 @@
         });
     }
 
+    // Serverstammende Strings (Spielernamen!) niemals roh in innerHTML einsetzen
+    function esc(s) {
+        return String(s).replace(/[&<>"']/g, c => (
+            { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+        ));
+    }
+
     function registriere_socket_events() {
         socket_online.on('raum_erstellt', ({ code }) => {
             document.getElementById('op_raum_code').textContent = code;
@@ -1574,7 +1581,7 @@
         });
         socket_online.on('spieler_liste', (liste) => {
             const html = liste.map(s =>
-                `<div class="spieler_item${s.host ? ' ist-host' : ''}">${s.host ? '⭐ ' : ''}${s.name}</div>`
+                `<div class="spieler_item${s.host ? ' ist-host' : ''}">${s.host ? '⭐ ' : ''}${esc(s.name)}</div>`
             ).join('');
             ['op_spieler_liste_host','op_spieler_liste_gast'].forEach(id => {
                 const el = document.getElementById(id);
@@ -1657,7 +1664,7 @@
             if (scores?.length) {
                 const sorted = [...scores].sort((a, b) => b.score - a.score);
                 inhalt.innerHTML = sorted.map((s, i) =>
-                    `<div class="live_score_item"><span>${i + 1}. ${s.name}</span><span>${s.score}</span></div>`
+                    `<div class="live_score_item"><span>${i + 1}. ${esc(s.name)}</span><span>${Number(s.score) || 0}</span></div>`
                 ).join('');
                 panel.style.display = '';
             }
@@ -1669,9 +1676,9 @@
             const medaillen = ['🥇','🥈','🥉'];
             inhalt.innerHTML = rangliste.map(item =>
                 `<div class="rangliste_item">
-                    <div class="rangliste_rang">${medaillen[item.rang - 1] || item.rang}</div>
-                    <div class="rangliste_name">${item.name}</div>
-                    <div class="rangliste_score">${item.score}</div>
+                    <div class="rangliste_rang">${medaillen[item.rang - 1] || Number(item.rang) || ''}</div>
+                    <div class="rangliste_name">${esc(item.name)}</div>
+                    <div class="rangliste_score">${Number(item.score) || 0}</div>
                 </div>`
             ).join('');
             document.getElementById('online_overlay').style.display = 'flex';

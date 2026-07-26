@@ -141,7 +141,7 @@ Textlängen, doppelte Leerzeichen, HTML-Tags und Platzhaltertext.
 ---
 
 <details>
-<summary><strong>Entwicklungsphasen 1–13</strong></summary>
+<summary><strong>Entwicklungsphasen 1–14</strong></summary>
 
 ## Phase 1 – Initiales Quiz-Projekt (8. Mai 2026)
 
@@ -593,6 +593,52 @@ Umbenennung per `git mv` für klarere, kürzere Bezeichnung ohne redundantes „
 | `td_poolbillard.htm` | 100 Fragen | 134 Fragen | +34 Duo-Aussagen |
 
 Für den Duo-Katalog wurde pro Quattro-Frage je eine wahre Aussage (korrekte Antwort) und eine falsche Aussage (eine der Fehlantworten) erzeugt.
+
+---
+
+## Phase 14 – Poolbillard-Kataloge bereinigt & Distraktoren verbessert (23. Mai 2026)
+
+Beide Poolbillard-Kataloge wurden nach einer Erweiterungsrunde strukturell geprüft und inhaltlich verfeinert.
+
+### 14.1  Formatfehler in tq_poolbillard.htm behoben
+
+**Datei:** `tq_poolbillard.htm`
+
+Zwei Formatfehler wurden korrigiert:
+
+| Position | Vorher | Nachher |
+|----------|--------|---------|
+| Frage 32, Option B | `"14/1 endlos"` | `"14.1 endlos"` |
+| Frage 58, Option D | `"verschiedene Kugeln"` | `"Verschiedene Kugeln"` |
+
+### 14.2  Antwortbalance in td_poolbillard.htm korrigiert
+
+**Datei:** `td_poolbillard.htm`
+
+Die Antwortbalance lag bei 64 % `true` (89 richtig / 50 falsch) und damit über der Zielobergrenze von 60 %. Es wurden 10 neue `false`-Aussagen ergänzt.
+
+| Katalog | Vorher | Nachher |
+|---------|--------|---------|
+| Fragen gesamt | 139 | 149 |
+| true-Anteil | 64 % | 59,7 % |
+
+Neue Themen: Maßeinheiten, Tischlänge, Kugelfarben, 8-Ball-Aufbau, Safety-Regeln, Massé-Winkel, Push-Out-Gültigkeit, BBV-Ausspielziele.
+
+### 14.3  Fragetext und einzelne Optionen in tq_poolbillard.htm angepasst
+
+**Datei:** `tq_poolbillard.htm`
+
+Einzelne Fragen und Optionen wurden sprachlich oder inhaltlich korrigiert:
+
+- Frage „Mosconi Cup – nervenstark": Frageformulierung grammatisch korrigiert
+- Frage „Push Out": Option C von vager Spaß-Option auf regelnahe Fehloption geändert
+- Frage „Squirt/Deflection": Option C durch physikalisch plausible Fehloption ersetzt
+
+### 14.4  Spaß-Distraktoren durch plausible Fehlantworten ersetzt
+
+**Datei:** `tq_poolbillard.htm`
+
+14 offensichtliche Witz-Optionen (z. B. „Die Objektkugel wird magnetisch", „Das Fenster im Vereinsheim steht offen", „Die Kreide verdampft") wurden durch sachlich klingende, aber inhaltlich falsche Alternativen ersetzt. Betroffen waren 13 Fragen zu Spielregeln, Stoßtechnik, Ausrüstung und Mosconi Cup.
 
 </details>
 

@@ -59,6 +59,16 @@ Definiert in `.claude/skills/quiz-anpassungen/SKILL.md`. Pflegt diese Dokumentat
 fügt neue Entwicklungsphasen chronologisch ein und hält `Anpassungen.md` und
 `Anpassungen.html` synchron.
 
+### Skill quiz_publish – `/quiz_publish`
+
+Definiert in `.claude/skills/quiz_publish/SKILL.md`. Veröffentlicht die App in beide
+Zielvarianten: die **Vollversion** (alle Kataloge) nach `weberding\quiz` und **nur die
+Billard-Kataloge** (`td_poolbillard.htm`, `tq_poolbillard.htm`) nach pbc-erding.de
+(`public\` + `Fallback\spiel-spass\quiz`). Der dortige, an die PBC-Website angepasste
+Fork (eigenes Gold/Schwarz-Design, lokale Schriften, nur Billard-Themen) wird dabei
+niemals überschrieben. Validiert vorab alle Kataloge, committet und pusht die Repos
+quiz, weberding und pbc-erding.de und stößt den Next.js-Build an.
+
 ---
 
 ## Themendateien
@@ -141,7 +151,7 @@ Textlängen, doppelte Leerzeichen, HTML-Tags und Platzhaltertext.
 ---
 
 <details>
-<summary><strong>Entwicklungsphasen 1–14</strong></summary>
+<summary><strong>Entwicklungsphasen 1–15</strong></summary>
 
 ## Phase 1 – Initiales Quiz-Projekt (8. Mai 2026)
 
@@ -640,6 +650,50 @@ Einzelne Fragen und Optionen wurden sprachlich oder inhaltlich korrigiert:
 
 14 offensichtliche Witz-Optionen (z. B. „Die Objektkugel wird magnetisch", „Das Fenster im Vereinsheim steht offen", „Die Kreide verdampft") wurden durch sachlich klingende, aber inhaltlich falsche Alternativen ersetzt. Betroffen waren 13 Fragen zu Spielregeln, Stoßtechnik, Ausrüstung und Mosconi Cup.
 
+---
+
+## Phase 15 – Server-Härtung, XSS-Fix & Publish-Skill (26. Juli 2026)
+
+Der Online-Modus wurde auf Server- und Client-Seite sicherheitsgehärtet, und mit `/quiz_publish` gibt es jetzt einen Publish-Workflow für beide Zielvarianten (weberding + pbc-erding.de).
+
+### 15.1  quiz-server gehärtet
+
+**Datei(en):** `quiz-server\server.js`, `quiz-server\test\server.test.js`, `quiz-server\README.md` (eigenes Repo)
+
+Nach dem Vorbild des pbc-relay-Härtungsplans wurde der Socket.IO-Server des Online-Modus abgesichert:
+
+- **Crash-Schutz** (kritischster Fix): Payloads werden nicht mehr direkt destrukturiert – ein `emit` mit `null`-Payload konnte zuvor den kompletten Prozess (und damit alle laufenden Räume) zum Absturz bringen. Jeder Handler läuft jetzt in einem try/catch-Wrapper, dazu Prozess-Handler als letzte Verteidigungslinie.
+- **Raum-Hygiene**: Ein Socket ist immer in höchstens einem Raum; wiederholtes `create`/`join` hinterlässt keine verwaisten Räume oder Spieler-Karteileichen mehr.
+- **Origin-Prüfung** auch für reine WebSocket-Verbindungen (`allowRequest`); in Produktion kein Zugriff ohne Origin-Header mehr.
+- **Limits**: max. 128 KB/Nachricht (statt 1 MB), max. 200 Räume, Join-Rate-Limit 20/min je IP (bremst Raumcode-Bruteforce), Token-Bucket je Verbindung gegen Event-Floods.
+- **Validierung**: Raumcode-Format, `richtig`-Index an Antwortanzahl geklemmt, `antwort_index` nur 0–3, Fragen mit unter 2 Antworten verworfen, `spiel_starten` nur im Wartezustand.
+- **Betrieb**: sauberes SIGTERM/SIGINT-Shutdown mit Benachrichtigung der Clients, strukturierte JSON-Logs (datensparsam).
+- Der Server ist jetzt eine testbare Fabrik `createQuizServer()`; 9 Integrationstests mit echten Socket.IO-Clients (`npm test`), dazu ein neues README mit Protokoll- und Limits-Übersicht.
+
+### 15.2  XSS-Lücke im Online-Modus geschlossen
+
+**Datei:** `index.html`
+
+Spielernamen wurden in Spielerliste, Live-Zwischenstand und Endrangliste ungeescaped per `innerHTML` gerendert – ein Mitspieler mit einem Namen wie `<svg onload=…>` konnte dadurch Script bei allen anderen ausführen. Neue Helferfunktion `esc()` escapet jetzt alle serverstammenden Strings; Punktwerte werden zusätzlich numerisch koerciert.
+
+### 15.3  Veraltete Themenliste korrigiert
+
+**Datei:** `index.html`
+
+Die `fallback_themen`-Liste verwies noch auf die umbenannten Dateien `td_/tq_poolbillardregeln.htm`; sie zeigt jetzt auf `td_/tq_poolbillard.htm` (Titel „Poolbillard").
+
+### 15.4  Neuer Skill /quiz_publish
+
+**Datei:** `.claude/skills/quiz_publish/SKILL.md`
+
+Neuer Publish-Workflow für beide Zielvarianten (Details im Abschnitt „Quiz-Skills" oben). Kernregel: Auf pbc-erding.de werden nur die zwei Billard-Kataloge synchronisiert – der dortige, eigenständig designte Fork bleibt unangetastet.
+
+### 15.5  XSS-Fix in den PBC-Fork portiert
+
+**Datei:** `pbc-erding.de\public\spiel-spass\quiz\index.html` (+ `Fallback\`, `out\`, `out-staging\`)
+
+Der Escaping-Fix aus 15.2 wurde einmalig manuell und designschonend in die PBC-Version übernommen (dieselben drei `innerHTML`-Stellen; Design, Fonts und Logo unverändert).
+
 </details>
 
 ---
@@ -654,6 +708,10 @@ _Raum für aktuelle Anmerkungen – kann jederzeit überschrieben werden._
 ✅ Render.com Web Service eingerichtet – Live-URL: `https://quiz-server-rjv7.onrender.com`  
 ✅ `ONLINE_SERVER_URL` in `index.html` auf Render-URL gesetzt  
 ✅ `/quiz publish` + GitHub-Push abgeschlossen  
+
+### Offener Punkt: quiz-server-Härtung deployen
+
+Die Härtung aus Phase 15.1 liegt lokal in `C:\Daten\Projects\quiz-server` und ist noch nicht deployt. Erforderlich: Commit + Push im quiz-server-Repo → Render deployt automatisch; danach `https://quiz-server-rjv7.onrender.com/health` prüfen und in Render den Health-Check-Pfad auf `/health` stellen.
 
 ### Offener Punkt: Render.com-Plan
 

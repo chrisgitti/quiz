@@ -466,6 +466,20 @@
     und hält <code>Anpassungen.md</code> und <code>Anpassungen.html</code> synchron.</p>
   </div>
 
+  <div class="card">
+    <div class="card-title">
+      <span class="badge badge-gold">Claude Code</span>&ensp; /quiz_publish
+      &ensp;<span style="color:rgba(255,255,255,0.30);font-weight:400;text-transform:none;letter-spacing:0">→ <code>.claude/skills/quiz_publish/SKILL.md</code></span>
+    </div>
+    <p>Veröffentlicht die App in beide Zielvarianten: die <strong>Vollversion</strong>
+    (alle Kataloge) nach <code>weberding\quiz</code> und <strong>nur die Billard-Kataloge</strong>
+    (<code>td_poolbillard.htm</code>, <code>tq_poolbillard.htm</code>) nach pbc-erding.de.
+    Der dortige, an die PBC-Website angepasste Fork (eigenes Gold/Schwarz-Design, lokale
+    Schriften, nur Billard-Themen) wird dabei niemals überschrieben. Validiert vorab alle
+    Kataloge, committet und pusht die Repos quiz, weberding und pbc-erding.de und stößt
+    den Next.js-Build an.</p>
+  </div>
+
   <!-- Themendateien -->
   <div class="section-title">Themendateien</div>
 
@@ -559,7 +573,7 @@ python -B scripts\quiz_tool.py all check --lint   # + Sprachlint</code></pre>
 
   <details class="group" open>
     <summary>
-      <span class="group-label">Phasen 1–14</span>
+      <span class="group-label">Phasen 1–15</span>
       <span class="line"></span>
     </summary>
 
@@ -1042,6 +1056,45 @@ python -B scripts\quiz_tool.py all check --lint   # + Sprachlint</code></pre>
       </div>
     </details>
 
+    <hr>
+
+    <!-- Phase 15 -->
+    <details class="phase">
+      <summary><span class="summary-text">Phase 15 – Server-Härtung, XSS-Fix &amp; Publish-Skill <span class="date">(26. Juli 2026)</span></span></summary>
+      <div class="phase-body">
+        <p>Der Online-Modus wurde auf Server- und Client-Seite sicherheitsgehärtet, und mit <code>/quiz_publish</code> gibt es jetzt einen Publish-Workflow für beide Zielvarianten (weberding + pbc-erding.de).</p>
+
+        <h3>15.1&nbsp;&nbsp;quiz-server gehärtet</h3>
+        <p><strong>Datei(en):</strong> <code>quiz-server\server.js</code>, <code>quiz-server\test\server.test.js</code>, <code>quiz-server\README.md</code> (eigenes Repo)</p>
+        <p>Nach dem Vorbild des pbc-relay-Härtungsplans wurde der Socket.IO-Server des Online-Modus abgesichert:</p>
+        <ul>
+          <li><strong>Crash-Schutz</strong> (kritischster Fix): Payloads werden nicht mehr direkt destrukturiert &ndash; ein <code>emit</code> mit <code>null</code>-Payload konnte zuvor den kompletten Prozess (und damit alle laufenden Räume) zum Absturz bringen. Jeder Handler läuft jetzt in einem try/catch-Wrapper, dazu Prozess-Handler als letzte Verteidigungslinie.</li>
+          <li><strong>Raum-Hygiene:</strong> Ein Socket ist immer in höchstens einem Raum; wiederholtes <code>create</code>/<code>join</code> hinterlässt keine verwaisten Räume oder Spieler-Karteileichen mehr.</li>
+          <li><strong>Origin-Prüfung</strong> auch für reine WebSocket-Verbindungen (<code>allowRequest</code>); in Produktion kein Zugriff ohne Origin-Header mehr.</li>
+          <li><strong>Limits:</strong> max. 128 KB/Nachricht (statt 1 MB), max. 200 Räume, Join-Rate-Limit 20/min je IP (bremst Raumcode-Bruteforce), Token-Bucket je Verbindung gegen Event-Floods.</li>
+          <li><strong>Validierung:</strong> Raumcode-Format, <code>richtig</code>-Index an Antwortanzahl geklemmt, <code>antwort_index</code> nur 0&ndash;3, Fragen mit unter 2 Antworten verworfen, <code>spiel_starten</code> nur im Wartezustand.</li>
+          <li><strong>Betrieb:</strong> sauberes SIGTERM/SIGINT-Shutdown mit Benachrichtigung der Clients, strukturierte JSON-Logs (datensparsam).</li>
+          <li>Der Server ist jetzt eine testbare Fabrik <code>createQuizServer()</code>; 9 Integrationstests mit echten Socket.IO-Clients (<code>npm test</code>), dazu ein neues README mit Protokoll- und Limits-Übersicht.</li>
+        </ul>
+
+        <h3>15.2&nbsp;&nbsp;XSS-Lücke im Online-Modus geschlossen</h3>
+        <p><strong>Datei:</strong> <code>index.html</code></p>
+        <p>Spielernamen wurden in Spielerliste, Live-Zwischenstand und Endrangliste ungeescaped per <code>innerHTML</code> gerendert &ndash; ein Mitspieler mit einem Namen wie <code>&lt;svg onload=…&gt;</code> konnte dadurch Script bei allen anderen ausführen. Neue Helferfunktion <code>esc()</code> escapet jetzt alle serverstammenden Strings; Punktwerte werden zusätzlich numerisch koerciert.</p>
+
+        <h3>15.3&nbsp;&nbsp;Veraltete Themenliste korrigiert</h3>
+        <p><strong>Datei:</strong> <code>index.html</code></p>
+        <p>Die <code>fallback_themen</code>-Liste verwies noch auf die umbenannten Dateien <code>td_/tq_poolbillardregeln.htm</code>; sie zeigt jetzt auf <code>td_/tq_poolbillard.htm</code> (Titel „Poolbillard").</p>
+
+        <h3>15.4&nbsp;&nbsp;Neuer Skill /quiz_publish</h3>
+        <p><strong>Datei:</strong> <code>.claude/skills/quiz_publish/SKILL.md</code></p>
+        <p>Neuer Publish-Workflow für beide Zielvarianten (Details im Abschnitt „Quiz-Skills" oben). Kernregel: Auf pbc-erding.de werden nur die zwei Billard-Kataloge synchronisiert &ndash; der dortige, eigenständig designte Fork bleibt unangetastet.</p>
+
+        <h3>15.5&nbsp;&nbsp;XSS-Fix in den PBC-Fork portiert</h3>
+        <p><strong>Datei:</strong> <code>pbc-erding.de\public\spiel-spass\quiz\index.html</code> (+ <code>Fallback\</code>, <code>out\</code>, <code>out-staging\</code>)</p>
+        <p>Der Escaping-Fix aus 15.2 wurde einmalig manuell und designschonend in die PBC-Version übernommen (dieselben drei <code>innerHTML</code>-Stellen; Design, Fonts und Logo unverändert).</p>
+      </div>
+    </details>
+
   </details>
 
   <!-- Sonstiges -->
@@ -1057,6 +1110,11 @@ python -B scripts\quiz_tool.py all check --lint   # + Sprachlint</code></pre>
         <li>✅ <code>ONLINE_SERVER_URL</code> in <code>index.html</code> auf Render-URL gesetzt</li>
         <li>✅ <code>/quiz publish</code> + GitHub-Push abgeschlossen</li>
       </ul>
+
+      <h3>Offener Punkt: quiz-server-Härtung deployen</h3>
+      <p>Die Härtung aus Phase 15.1 liegt lokal in <code>C:\Daten\Projects\quiz-server</code> und ist noch nicht deployt.
+         Erforderlich: Commit + Push im quiz-server-Repo &rarr; Render deployt automatisch; danach
+         <code>https://quiz-server-rjv7.onrender.com/health</code> prüfen und in Render den Health-Check-Pfad auf <code>/health</code> stellen.</p>
 
       <h3>Offener Punkt: Render.com-Plan</h3>
       <p>Render.com Workspace Pro ($25/Monat) wurde gebucht, um den Timeout-on-first-Request der Billard-App zu vermeiden.

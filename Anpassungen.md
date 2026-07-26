@@ -709,9 +709,9 @@ _Raum für aktuelle Anmerkungen – kann jederzeit überschrieben werden._
 ✅ `ONLINE_SERVER_URL` in `index.html` auf Render-URL gesetzt  
 ✅ `/quiz publish` + GitHub-Push abgeschlossen  
 
-### Offener Punkt: quiz-server-Härtung deployen
+### quiz-server-Härtung – deployt ✅
 
-Die Härtung aus Phase 15.1 liegt lokal in `C:\Daten\Projects\quiz-server` und ist noch nicht deployt. Erforderlich: Commit + Push im quiz-server-Repo → Render deployt automatisch; danach `https://quiz-server-rjv7.onrender.com/health` prüfen und in Render den Health-Check-Pfad auf `/health` stellen.
+Die Härtung aus Phase 15.1 ist seit 26. Juli 2026 auf Render live (Commits `f7c57f9` + `a1fc7ee`). Der Server bietet zusätzlich `/healthz` als Alias zu `/health` – der Render-Health-Check bleibt wie bei der PBC POOL APP auf `/healthz`.
 
 ### Offener Punkt: Render.com-Plan
 

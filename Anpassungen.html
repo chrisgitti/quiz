@@ -1111,10 +1111,10 @@ python -B scripts\quiz_tool.py all check --lint   # + Sprachlint</code></pre>
         <li>✅ <code>/quiz publish</code> + GitHub-Push abgeschlossen</li>
       </ul>
 
-      <h3>Offener Punkt: quiz-server-Härtung deployen</h3>
-      <p>Die Härtung aus Phase 15.1 liegt lokal in <code>C:\Daten\Projects\quiz-server</code> und ist noch nicht deployt.
-         Erforderlich: Commit + Push im quiz-server-Repo &rarr; Render deployt automatisch; danach
-         <code>https://quiz-server-rjv7.onrender.com/health</code> prüfen und in Render den Health-Check-Pfad auf <code>/health</code> stellen.</p>
+      <h3>quiz-server-Härtung &ndash; deployt ✅</h3>
+      <p>Die Härtung aus Phase 15.1 ist seit 26. Juli 2026 auf Render live (Commits <code>f7c57f9</code> + <code>a1fc7ee</code>).
+         Der Server bietet zusätzlich <code>/healthz</code> als Alias zu <code>/health</code> &ndash;
+         der Render-Health-Check bleibt wie bei der PBC POOL APP auf <code>/healthz</code>.</p>
 
       <h3>Offener Punkt: Render.com-Plan</h3>
       <p>Render.com Workspace Pro ($25/Monat) wurde gebucht, um den Timeout-on-first-Request der Billard-App zu vermeiden.
